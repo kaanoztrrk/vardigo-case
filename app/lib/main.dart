@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'theme/colors.dart';
+import 'widgets/phone_frame.dart';
 
 void main() => runApp(const VardigoApp());
 
@@ -13,9 +14,20 @@ class VardigoApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           fontFamily: 'Urbanist',
-          scaffoldBackgroundColor: AppColors.white,
+          scaffoldBackgroundColor: AppColors.slate100,
         ),
-        // Telefon çerçevesi ve ekranlar sonraki adımlarda.
-        home: const Scaffold(body: SizedBox.shrink()),
+        home: const Scaffold(
+          // Tarayıcı penceresi 844 px'ten kısaysa telefon orantılı küçülür.
+          body: Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                // Ekranlar sonraki adımlarda.
+                child: PhoneFrame(child: SizedBox.shrink()),
+              ),
+            ),
+          ),
+        ),
       );
 }
