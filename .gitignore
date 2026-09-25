@@ -1,0 +1,6 @@
+# Case paketi (şirketin materyali) yerel referans için; repoya girmez.
+/case/
+
+.DS_Store
+Thumbs.db
+.vscode/
