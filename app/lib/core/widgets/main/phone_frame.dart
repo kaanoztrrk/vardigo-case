@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../theme/colors.dart';
-import '../theme/shadows.dart';
-import '../theme/typography.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_shadows.dart';
+import '../../theme/app_text_style.dart';
 
 /// specs/00-design-tokens.txt → TELEFON ÇERÇEVESİ.
 /// 390×844 dış kutu, 11 px bezel → 368×822 iç ekran.
@@ -87,7 +87,7 @@ class _StatusBar extends StatelessWidget {
             child: Text(
               '9:41',
               textAlign: TextAlign.center,
-              style: AppText.statusTime,
+              style: AppTextStyle.statusTime,
             ),
           ),
           const Positioned(

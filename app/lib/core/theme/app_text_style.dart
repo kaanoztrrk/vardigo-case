@@ -1,11 +1,11 @@
 import 'package:flutter/painting.dart';
 
-import 'colors.dart';
+import 'app_colors.dart';
 
 /// specs/00-design-tokens.txt → TİPOGRAFİ
 /// Spec satır yüksekliğini px verir; Flutter'da `height` = satır / boyut.
 /// liga ve calt kapalı.
-abstract final class AppText {
+abstract final class AppTextStyle {
   static const _features = [
     FontFeature.disable('liga'),
     FontFeature.disable('calt'),
