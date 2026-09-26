@@ -1,7 +1,9 @@
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 
 import { authRouter } from './auth.js';
+import { candidatesRouter } from './candidates.js';
 import { errorHandler, notFound } from './http.js';
 
 export function createApp({ store }) {
@@ -17,9 +19,14 @@ export function createApp({ store }) {
   app.use(cors());
   app.use(express.json());
 
+  // Aday fotoğrafları ve firma logoları. /api dışında ve token'sız: istemci
+  // bunları <img> / Image.network ile, header ekleyemeden çekiyor.
+  app.use('/assets', express.static(fileURLToPath(new URL('../assets', import.meta.url))));
+
   const api = express.Router();
   api.get('/health', (req, res) => res.json({ ok: true, data: 'up' }));
   api.use(authRouter(store));
+  api.use(candidatesRouter(store));
   api.use(notFound);
 
   app.use('/api', api);

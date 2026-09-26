@@ -1,0 +1,56 @@
+# Örnek istekler — VS Code "REST Client" eklentisi (humao.rest-client):
+# her isteğin üstündeki "Send Request"e tıkla. Önce sunucu: npm run dev
+#
+# Token'lar login isteklerinden otomatik alınıyor; önce iki login'i bir kez
+# gönder.
+
+@api = http://localhost:3000/api
+
+### Sağlık kontrolü
+GET {{api}}/health
+
+### İşveren girişi
+# @name employer
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{ "role": "employer" }
+
+### İş arayan girişi
+# @name worker
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{ "role": "worker" }
+
+### Geçersiz rol → 400 INVALID_ROLE
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{ "role": "admin" }
+
+### Adaylar (tümü, önerilen sıra)
+GET {{api}}/candidates
+Authorization: Bearer {{employer.response.body.data.token}}
+
+### Adaylar: %100 eşleşme, en yakın
+GET {{api}}/candidates?tab=perfect&sort=near
+Authorization: Bearer {{employer.response.body.data.token}}
+
+### Adaylar: benzer, puana göre
+GET {{api}}/candidates?tab=similar&sort=rating
+Authorization: Bearer {{employer.response.body.data.token}}
+
+### Geçersiz sıralama → 400 INVALID_QUERY
+GET {{api}}/candidates?sort=fiyat
+Authorization: Bearer {{employer.response.body.data.token}}
+
+### Yanlış rol → 401 FORBIDDEN_ROLE
+GET {{api}}/candidates
+Authorization: Bearer {{worker.response.body.data.token}}
+
+### Token yok → 401 UNAUTHORIZED
+GET {{api}}/candidates
+
+### Aday fotoğrafı (token gerekmez)
+GET http://localhost:3000/assets/photos/merve.png

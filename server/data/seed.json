@@ -14,7 +14,9 @@
       "photo": "photos/merve.png",
       "online": true,
       "perfect": true,
-      "score": 92
+      "score": 92,
+      "expectedPay": "25.000",
+      "payMatch": true
     },
     {
       "id": "w_derya",
@@ -26,7 +28,9 @@
       "photo": "photos/derya.png",
       "online": true,
       "perfect": false,
-      "score": 71
+      "score": 71,
+      "expectedPay": "25.000",
+      "payMatch": false
     },
     {
       "id": "w_ayse",
@@ -38,7 +42,9 @@
       "photo": "photos/ayse.png",
       "online": true,
       "perfect": false,
-      "score": 64
+      "score": 64,
+      "expectedPay": "25.000",
+      "payMatch": true
     },
     {
       "id": "w_ferhat",
@@ -50,7 +56,9 @@
       "photo": "photos/ferhat.png",
       "online": true,
       "perfect": true,
-      "score": 88
+      "score": 88,
+      "expectedPay": "25.000",
+      "payMatch": false
     }
   ],
   "offers": [
