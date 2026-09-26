@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import { authRouter } from './auth.js';
 import { candidatesRouter } from './candidates.js';
+import { devRouter } from './dev.js';
 import { errorHandler, notFound } from './http.js';
 import { offersRouter } from './offers.js';
 
@@ -30,6 +31,7 @@ export function createApp({ store, now = () => new Date() }) {
   api.use(authRouter(store));
   api.use(candidatesRouter(store));
   api.use(offersRouter(store, now));
+  api.use(devRouter(store, now));
   api.use(notFound);
 
   app.use('/api', api);

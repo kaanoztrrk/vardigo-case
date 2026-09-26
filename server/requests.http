@@ -76,3 +76,38 @@ Authorization: Bearer {{employer.response.body.data.token}}
 Content-Type: application/json
 
 { "workerIds": ["w_ayse", "w_yok"] }
+
+### ─── İŞ ARAYAN ───────────────────────────────────────────────
+
+### Bekleyen talepler (kalan süre sunucuda hesaplanır)
+GET {{api}}/offers?status=pending
+Authorization: Bearer {{worker.response.body.data.token}}
+
+### Cevaplanan talepler (kabul + red)
+GET {{api}}/offers?status=answered
+Authorization: Bearer {{worker.response.body.data.token}}
+
+### Süresi dolan talepler
+GET {{api}}/offers?status=expired
+Authorization: Bearer {{worker.response.body.data.token}}
+
+### Detay: Barista (şehir + not eklenir)
+GET {{api}}/offers/o_barista
+Authorization: Bearer {{worker.response.body.data.token}}
+
+### İlgileniyorum: Garson → accepted (ikinci kez → 409 OFFER_STATE)
+POST {{api}}/offers/o_garson/accept
+Authorization: Bearer {{worker.response.body.data.token}}
+
+### İlgilenmiyorum: Barista → rejected
+POST {{api}}/offers/o_barista/reject
+Authorization: Bearer {{worker.response.body.data.token}}
+
+### ─── DEMO YARDIMCILARI (token gerekmez) ─────────────────────
+
+### Komi'nin süresini hemen doldur → "Süresi Dolan" sekmesine geçer
+# Sonra "İlgileniyorum" denersen: 409 "Teklifin süresi doldu."
+POST {{api}}/dev/expire/o_komi
+
+### Her şeyi başa döndür (seed)
+POST {{api}}/dev/reset
