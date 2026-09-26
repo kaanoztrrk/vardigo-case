@@ -4,3 +4,7 @@
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Sunucunun çalışma verisi: ilk açılışta seed'den üretilir.
+/server/data/db.json
+/server/data/db.json.tmp

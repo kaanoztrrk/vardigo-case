@@ -1,0 +1,102 @@
+{
+  "users": [
+    { "id": "u_employer", "role": "employer", "name": "Ferhat S.", "token": "dev-employer" },
+    { "id": "u_worker", "role": "worker", "name": "Ayşe Kaya", "token": "dev-worker" }
+  ],
+  "candidates": [
+    {
+      "id": "w_merve",
+      "name": "Merve Y.",
+      "rating": "4.9",
+      "attend": "%100 katılım",
+      "km": "4.9 km",
+      "kmValue": 4.9,
+      "photo": "photos/merve.png",
+      "online": true,
+      "perfect": true,
+      "score": 92
+    },
+    {
+      "id": "w_derya",
+      "name": "Derya A.",
+      "rating": "4.2",
+      "attend": "%86 katılım",
+      "km": "1.7 km",
+      "kmValue": 1.7,
+      "photo": "photos/derya.png",
+      "online": true,
+      "perfect": false,
+      "score": 71
+    },
+    {
+      "id": "w_ayse",
+      "name": "Ayşe K.",
+      "rating": "3.8",
+      "attend": "%87 katılım",
+      "km": "1.2 km",
+      "kmValue": 1.2,
+      "photo": "photos/ayse.png",
+      "online": true,
+      "perfect": false,
+      "score": 64
+    },
+    {
+      "id": "w_ferhat",
+      "name": "Ferhat C.",
+      "rating": "4.9",
+      "attend": "%100 katılım",
+      "km": "4.9 km",
+      "kmValue": 4.9,
+      "photo": "photos/ferhat.png",
+      "online": true,
+      "perfect": true,
+      "score": 88
+    }
+  ],
+  "offers": [
+    {
+      "id": "o_garson",
+      "workerId": "u_worker",
+      "title": "Garson",
+      "place": "Zarif Cheff Restaurant",
+      "pay": "45.000",
+      "payValue": 45000,
+      "logo": "logos/zarif.svg",
+      "district": "Kadıköy",
+      "when": "16 Ağu · 12:00 - 16:00",
+      "status": "pending",
+      "expiresAt": "USE_NOW_PLUS_21H32M"
+    },
+    {
+      "id": "o_barista",
+      "workerId": "u_worker",
+      "title": "Barista",
+      "place": "Horizon Cafe",
+      "pay": "38.000",
+      "payValue": 38000,
+      "logo": "logos/horizon.svg",
+      "district": "Kadıköy",
+      "when": "16 Ağu · 12:00 - 16:00",
+      "status": "pending",
+      "expiresAt": "USE_NOW_PLUS_21H32M"
+    },
+    {
+      "id": "o_komi",
+      "workerId": "u_worker",
+      "title": "Komi",
+      "place": "Phoenix Kitchen",
+      "pay": "32.000",
+      "payValue": 32000,
+      "logo": "logos/phoenix.svg",
+      "district": "Kadıköy",
+      "when": "16 Ağu · 12:00 - 16:00",
+      "status": "pending",
+      "expiresAt": "USE_NOW_PLUS_18H00M"
+    }
+  ],
+  "labels": {
+    "totalPerfect": 26,
+    "totalSimilar": 16,
+    "pendingCountLabel": 12
+  }
+}
