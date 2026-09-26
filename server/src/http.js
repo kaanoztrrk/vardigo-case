@@ -4,11 +4,15 @@
 
 // Route'ların fırlattığı, kullanıcıya gösterilebilir hata. Express 5
 // async handler'lardaki hataları da errorHandler'a kendisi iletiyor.
+//
+// `extra` zarftaki error nesnesine eklenir; örn. POST /offers hangi
+// id'lerin sorunlu olduğunu { ids: [...] } ile bildiriyor.
 export class ApiError extends Error {
-  constructor(status, code, message) {
+  constructor(status, code, message, extra = {}) {
     super(message);
     this.status = status;
     this.code = code;
+    this.extra = extra;
   }
 }
 
@@ -16,8 +20,8 @@ export function ok(res, data, status = 200) {
   return res.status(status).json({ ok: true, data });
 }
 
-function fail(res, status, code, message) {
-  return res.status(status).json({ ok: false, error: { code, message } });
+function fail(res, status, code, message, extra = {}) {
+  return res.status(status).json({ ok: false, error: { code, message, ...extra } });
 }
 
 // /api altında eşleşmeyen her istek. Express'in varsayılan HTML 404'ü
@@ -30,7 +34,7 @@ export function notFound(req, res) {
 // imzada kalmalı.
 export function errorHandler(err, req, res, next) {
   if (err instanceof ApiError) {
-    return fail(res, err.status, err.code, err.message);
+    return fail(res, err.status, err.code, err.message, err.extra);
   }
   // express.json() bozuk gövdeyi bu tiple fırlatıyor.
   if (err.type === 'entity.parse.failed') {

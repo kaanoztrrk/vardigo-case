@@ -5,8 +5,10 @@ import cors from 'cors';
 import { authRouter } from './auth.js';
 import { candidatesRouter } from './candidates.js';
 import { errorHandler, notFound } from './http.js';
+import { offersRouter } from './offers.js';
 
-export function createApp({ store }) {
+// `now` testlerde sabit bir saat vermek için; teklif süreleri ona göre.
+export function createApp({ store, now = () => new Date() }) {
   const app = express();
 
   app.set('x-powered-by', false);
@@ -27,6 +29,7 @@ export function createApp({ store }) {
   api.get('/health', (req, res) => res.json({ ok: true, data: 'up' }));
   api.use(authRouter(store));
   api.use(candidatesRouter(store));
+  api.use(offersRouter(store, now));
   api.use(notFound);
 
   app.use('/api', api);

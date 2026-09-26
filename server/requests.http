@@ -54,3 +54,25 @@ GET {{api}}/candidates
 
 ### Aday fotoğrafı (token gerekmez)
 GET http://localhost:3000/assets/photos/merve.png
+
+### Görüşme talebi gönder: Merve + Derya → 201
+# İkinci kez gönderirsen 409 alırsın (bekleyen talep var).
+POST {{api}}/offers
+Authorization: Bearer {{employer.response.body.data.token}}
+Content-Type: application/json
+
+{ "workerIds": ["w_merve", "w_derya"] }
+
+### Boş seçim → 400 EMPTY_SELECTION
+POST {{api}}/offers
+Authorization: Bearer {{employer.response.body.data.token}}
+Content-Type: application/json
+
+{ "workerIds": [] }
+
+### Bilinmeyen aday → 404 UNKNOWN_WORKER (Ayşe'ye de yazılmaz)
+POST {{api}}/offers
+Authorization: Bearer {{employer.response.body.data.token}}
+Content-Type: application/json
+
+{ "workerIds": ["w_ayse", "w_yok"] }
