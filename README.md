@@ -18,3 +18,8 @@ cd app && flutter run -d chrome
 ```
 
 Kurulum, örnek istekler ve tek komutla çalıştırma adımları ilerleyen commit'lerde eklenecek.
+
+## Lisans
+
+Tüm hakları saklıdır. Kod yalnızca Vardigo işe alım sürecindeki değerlendirme
+için incelenebilir ve çalıştırılabilir; ayrıntılar [LICENSE](LICENSE) dosyasında.
