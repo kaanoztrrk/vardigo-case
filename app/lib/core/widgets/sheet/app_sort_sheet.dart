@@ -10,7 +10,7 @@ import '../icon/app_icon.dart';
 ///
 /// Spec 01 chip'e her basışta sıradaki sıralamaya geçen bir DÖNGÜ
 /// tanımlıyor; kullanıcı üç seçeneği görüp doğrudan seçebilsin diye
-/// bilerek panele çevrildi (bkz. Mülakat notları). Panel Navigator
+/// bilerek panele çevrildi (bkz. README → Bilinçli kararlar). Panel Navigator
 /// üzerinden açıldığı için telefon çerçevesinin İÇİNDE kalıyor
 /// (bkz. app.dart → builder).
 Future<T?> showAppSortSheet<T>({
