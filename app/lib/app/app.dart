@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_scroll_behavior.dart';
 import '../core/widgets/main/phone_frame.dart';
 import '../features/auth/bloc/auth_bloc.dart';
 import '../features/auth/widget/role_switch.dart';
@@ -25,6 +26,8 @@ class VardigoApp extends StatelessWidget {
       scaffoldBackgroundColor: AppColors.slate100,
     ),
     routerConfig: router,
+    // Fareyle sürükleyerek kaydırma (bkz. AppScrollBehavior).
+    scrollBehavior: const AppScrollBehavior(),
     // Telefon çerçevesi `builder`'da: Navigator'ın ÜSTÜNDE, böylece
     // snackbar / diyalog gibi Navigator üzerinden açılan her şey de
     // çerçevenin İÇİNDE kalıyor.

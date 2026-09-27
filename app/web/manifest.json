@@ -1,6 +1,6 @@
 {
-    "name": "vardigo_app",
-    "short_name": "vardigo_app",
+    "name": "Vardigo",
+    "short_name": "Vardigo",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
