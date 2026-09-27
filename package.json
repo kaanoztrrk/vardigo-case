@@ -1,0 +1,14 @@
+{
+  "name": "vardigo-case",
+  "private": true,
+  "description": "Vardigo case - tek komut: npm install && npm start",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "postinstall": "npm --prefix server install",
+    "start": "npm --prefix server start",
+    "test": "npm --prefix server test",
+    "build:web": "npm --prefix server run build:web"
+  }
+}

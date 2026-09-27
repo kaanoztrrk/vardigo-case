@@ -8,3 +8,6 @@ Thumbs.db
 # Sunucunun çalışma verisi: ilk açılışta seed'den üretilir.
 /server/data/db.json
 /server/data/db.json.tmp
+
+# CanvasKit CDN'den geliyor (bkz. server/scripts/build-web.js)
+/server/public/canvaskit/

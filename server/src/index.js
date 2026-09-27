@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { createApp } from './app.js';
@@ -14,6 +15,12 @@ const store = createStore({
   file: fileURLToPath(new URL('../data/db.json', import.meta.url)),
 });
 
-createApp({ store }).listen(port, () => {
+// Hazır web build'i (`npm run build:web` üretir, repoda duruyor). Yoksa
+// yalnızca API ayağa kalkıyor.
+const webDir = fileURLToPath(new URL('../public', import.meta.url));
+const hasWeb = fs.existsSync(path.join(webDir, 'index.html'));
+
+createApp({ store, webDir: hasWeb ? webDir : undefined }).listen(port, () => {
+  if (hasWeb) console.log(`Uygulama: http://localhost:${port}`);
   console.log(`API: http://localhost:${port}/api`);
 });
