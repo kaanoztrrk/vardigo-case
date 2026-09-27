@@ -15,31 +15,60 @@ Geliştirme süreci adım adım commit'lerde:
 [commit geçmişi](https://github.com/kaanoztrrk/vardigo-case/commits/main) ya da
 yerelde `git log --oneline --reverse`.
 
+Yapay zekâ kullanımı ve süreç notu: [SUREC.txt](SUREC.txt) — mimari ve
+kararlar benim; kodun yazımını, kendi mimari kurallarımla yapılandırdığım
+Claude Code hızlandırdı.
+
 ## Hızlı başlangıç
 
-```bash
-# API → http://localhost:3000/api   (Node 20+)
-cd server
-npm install
-npm run dev
+Gereken: **Node 20+** ve internet (tarayıcı Flutter'ın çizim motorunu
+CDN'den yüklüyor). Flutter kurmak gerekmiyor — uygulamanın hazır build'i
+repoda (`server/public/`).
 
-# İstemci (ayrı terminal)
-cd app
-flutter run -d chrome
+```bash
+npm install     # sunucu bağımlılıklarını da kurar
+npm start       # → http://localhost:3000  (uygulama + API)
 ```
 
-Tek komutla çalıştırma (API + hazır web build) ilerleyen commit'lerde eklenecek.
+Açılınca:
+
+- Sayfanın üstündeki **İşveren | İş arayan** anahtarı iki demo hesap
+  arasında geçiriyor (case'de giriş ekranı yok; rol seçmek giriş yapmak).
+- **İşveren** → Eşleşen Personeller: aday seç → *Görüşme Talebi Gönder*.
+- **İş arayan** → Görüşme Talepleri: gönderilen talep *Bekleyen*'de;
+  *İlgileniyorum / İlgilenmiyorum* → *Cevaplanan*.
+- *Süresi Dolan*'ı beklemeden görmek ve veriyi sıfırlamak için
+  [aşağıdaki](#uç-noktalar) `POST /api/dev/expire/:id` ve `POST /api/dev/reset`.
+
+Port değiştirmek için: `PORT=4000 npm start` (Windows PowerShell:
+`$env:PORT=4000; npm start`).
+
+### Geliştirme
+
+```bash
+# API (dosya değişince yeniden başlar) → http://localhost:3000/api
+cd server && npm run dev
+
+# İstemci (ayrı terminal, Flutter 3.41+)
+cd app && flutter run -d chrome
+```
+
+Uygulama kodu değişince hazır build'i yenilemek için (Flutter gerekir):
+
+```bash
+npm run build:web   # → server/public (CanvasKit CDN'den geldiği için dahil değil)
+```
 
 ## Backend
 
 ### Testler
 
 ```bash
-cd server
-npm test
+npm test                 # sunucu: 46 test
+cd app && flutter test   # uygulama: 42 test
 ```
 
-40 test. Spec'teki "minimum test" senaryosu `test/scenario.test.js`
+Spec'teki "minimum test" senaryosu `server/test/scenario.test.js`
 içinde birebir ve sırayla çalışıyor:
 
 ```
@@ -136,6 +165,41 @@ curl -s -X POST "$API/offers/o_garson/accept" -H "Authorization: Bearer dev-work
   semantiğinde doğrusu 403.
 - **Tek demo iş arayan:** `dev-worker` tüm talepleri görür; işverenin
   adaylara gönderdiği talepler de burada listelenir.
+
+## Uygulama (Flutter web)
+
+`app/lib` üç katman: `app/` (kök, router, bağımlılıklar), `core/` (tema,
+ortak widget'lar, API istemcisi, hata tipleri), `features/<modül>/`
+(bloc · data · presentation · widget). Akış tek yönlü: Repository → Bloc →
+View. Sunucuyla konuşan tek yer `core/services/api_service.dart`: token'ı
+ekliyor, `{ ok, data }` zarfını açıyor, her hatayı tipli bir `Failure`'a
+çeviriyor; ekranlar hatayı mesaja değil `code`'a göre ayırıyor.
+
+### Bilinçli kararlar
+
+Kaynak önceliği brief'teki gibi: referans PNG > design tokens > sayfa
+spec'leri > assets.
+
+- **Sekme içeriği:** referansta dört aday da "%100" sekmesinde; brief'teki
+  `score >= 80` kuralı uygulandı (bkz. Backend → Bilinçli kararlar).
+- **Aday fotoğrafları:** paketteki fotoğraflar referanstakilerle aynı
+  kişiler değil (ör. `merve.png` referanstaki Ayşe). Spec'teki dosya
+  eşlemesi kullanıldı; referanstan görsel kırpılmadı.
+- **Sıralama:** spec 1 chip'e her basışta sıradakine geçen bir döngü
+  tanımlıyor; iki ekranda da alttan açılan bir seçim paneline çevrildi
+  (seçenekler görünür, doğrudan seçiliyor).
+- **Referansa göre spec'ten ayrılanlar:** Ekran 1 sekme çubuğunun iç
+  boşluğu / köşesi, Görüşme Talepleri başlığının sola yaslı olması, Ekran
+  2'de home indicator olmaması.
+- **Telefon çerçevesi:** tokens'taki gibi 390×844 dış kutu + 11 px bezel →
+  iç ekran 368 px (referansta içerik 390 px genişliğinde çizilmiş); içerik
+  buna göre sığdırıldı.
+- **Talebe yanıt:** iyimser — kart hemen düşüyor (animasyonlu), hata olursa
+  geri geliyor; süresi dolmuş / zaten yanıtlanmış talep geri konmuyor.
+- **Geri sayım:** metni sunucu üretiyor; ekran açıkken liste dakikada bir
+  tazeleniyor.
+- **Geri / yardım butonları** hedefsiz: case'de önceki ekran ve yardım
+  sayfası tanımlı değil.
 
 ## Lisans
 

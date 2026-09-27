@@ -1,0 +1,58 @@
+VARDIGO CASE — SÜREÇ NOTU
+25–28 Eylül 2026
+
+ARAÇLAR / MODELLER
+- Flutter 3.41 (web) + flutter_bloc, go_router, get_it, http. Node 24 +
+  Express 5, veri JSON dosyası, testler node:test + supertest.
+- Yapay zekâyı kendi çalışma düzenime göre kullandım: Claude Code'u
+  (Claude Opus 5.5) yıllardır projelerimde uyguladığım mimari
+  kurallarla (app / core / features, Bloc, tek yönlü akış, tipli hatalar)
+  yapılandırdım ve her adımda bu desene uymasını şart koştum. Mimariyi ve
+  her kararı ben verdim; spec ile referans çeliştiğinde seçenekleri AI
+  listeledi, seçimi ben yaptım. Kodun yazımını yapay zekâ hızlandırdı;
+  her adımı okuyup çalıştırdım, testle doğruladım ve commit'leri kendim
+  attım.
+- Bitmiş ekranı referansla ayrıca ChatGPT'ye (ücretsiz sürüm)
+  karşılaştırttım; bulgularını kaynağına kadar kontrol ettim.
+- Referansla kıyas: headless Chrome ekran görüntüsü; API denemesi: VS Code
+  REST Client (server/requests.http).
+
+SIRAYLA NE YAPTIM
+1. İskelet: repo, Express iskeleti, Flutter web iskeleti.
+2. Token'lar: Urbanist, ikonlar, renk / tipografi / gölge, telefon
+   çerçevesi (bezel + Dynamic Island). Klasörleri kendi projelerimdeki
+   mimariye (app / core / features, Bloc) taşıdım.
+3. API: JSON depo + seed, rol girişi ve hata zarfı, /candidates, atomik
+   POST /offers, liste / kabul / red, spec'teki 6 adımlı senaryo testi.
+   Sayfalardan önce yaptım: veri sözleşmesi netleşsin, ekranlar sahte veri
+   yerine doğrudan gerçek API'ye bağlansın.
+4. Uygulama çekirdeği: tek API istemcisi, tipli hatalar, bağımlılıklar.
+5. Sayfa 1: liste, sekme, sıralama, çoklu seçim → talep gönderimi.
+6. Sayfa 2: üç sekme, ilgileniyorum / ilgilenmiyorum, detay, geri sayım.
+7. Animasyonlar, alttan açılan sıralama paneli, çerçeve dışında rol
+   anahtarı, tek komut (npm start: API + hazır web build).
+
+TAKILDIĞIM NOKTALAR
+- Referans ile spec'in çeliştiği yerler. Referansta dört aday da "%100"
+  sekmesinde, kural ise score >= 80 diyor; paketteki fotoğraflar
+  referanstakilerle aynı kişiler değil. Brief'in öncelik sırasını
+  uyguladım ama iş kuralını ve spec'teki dosya eşlemesini görselin önüne
+  koydum: görsel statik bir örnek, kural davranış. Farkları README'de
+  yazdım.
+- Tokens'taki çerçeve (390 dış, 11 bezel) iç ekranı 368 px yapıyor;
+  referansta içerik 390 px çizilmiş. Kart meta satırı 1 px taşıyordu ve
+  release build bunu göstermiyordu. Metin genişliklerini fontla ölçüp
+  ayırıcı boşluğunu daralttım, uzun değer gelirse satır küçülüyor.
+- Home indicator'ı aktif ekrana bağlarken router build sırasında haber
+  veriyordu ("setState during build"). Widget testi yakaladı; güncellemeyi
+  bir sonraki kareye erteledim.
+
+BİLEREK YAPMADIKLARIM
+- Giriş ekranı: brief sabit iki hesap diyor; çerçevenin içine tasarımı
+  olmayan bir ekran yerine dışarıda bir demo anahtarı koydum.
+- Gerçek kimlik doğrulama (JWT), veritabanı, sayfalama: case ölçeğinde
+  JSON dosya + sabit token yeterli; depo arayüzü değişmeden değişebilir.
+- Sıralama döngüsü: spec 1'deki "bas → sıradaki" yerine seçim paneli
+  (seçenekler görünür). Bilinçli sapma.
+- Mobil (Android / iOS) build ve Docker: hedef tarayıcıda tek komut.
+- CanvasKit'in yerel kopyası (32 MB): repo hafif kalsın diye CDN'den.
