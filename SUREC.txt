@@ -31,6 +31,8 @@ SIRAYLA NE YAPTIM
 6. Sayfa 2: üç sekme, ilgileniyorum / ilgilenmiyorum, detay, geri sayım.
 7. Animasyonlar, alttan açılan sıralama paneli, çerçeve dışında rol
    anahtarı, tek komut (npm start: API + hazır web build).
+8. Cilalama: masaüstü tarayıcıda listeler fareyle çekilince kaymıyordu
+   (Flutter web'de varsayılan kapalı); testle ölçüp düzelttim.
 
 TAKILDIĞIM NOKTALAR
 - Referans ile spec'in çeliştiği yerler. Referansta dört aday da "%100"
