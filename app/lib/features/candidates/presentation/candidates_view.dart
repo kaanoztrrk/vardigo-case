@@ -37,15 +37,18 @@ class _CandidatesViewState extends State<CandidatesView> {
       backgroundColor: AppColors.white,
       body: BlocConsumer<CandidatesBloc, CandidatesState>(
         listenWhen: (prev, curr) =>
-            curr.actionError != null && prev.actionError != curr.actionError,
+            (curr.actionError != null &&
+                prev.actionError != curr.actionError) ||
+            (curr.actionMessage != null &&
+                prev.actionMessage != curr.actionMessage),
         listener: (context, state) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.actionError!),
+              content: Text(state.actionError ?? state.actionMessage!),
               behavior: SnackBarBehavior.floating,
             ),
           );
-          bloc.add(CandidatesActionErrorCleared());
+          bloc.add(CandidatesToastShown());
         },
         builder: (context, state) => Column(
           children: [
@@ -86,8 +89,11 @@ class _CandidatesViewState extends State<CandidatesView> {
               ),
             ),
             Expanded(child: _List(state: state)),
-            // Gönderim (POST /offers) bir sonraki adımda bağlanıyor.
-            SendOfferFooter(count: state.selectedCount),
+            SendOfferFooter(
+              count: state.selectedCount,
+              sending: state.sending,
+              onSend: () => bloc.add(CandidatesOffersSendRequested()),
+            ),
           ],
         ),
       ),

@@ -21,5 +21,8 @@ class CandidateSelectionToggled extends CandidatesEvent {
   CandidateSelectionToggled(this.candidateId);
 }
 
+/// Footer'daki "Görüşme Talebi Gönder (N)": seçili adaylara talep gönder.
+class CandidatesOffersSendRequested extends CandidatesEvent {}
+
 /// Toast gösterildi — tekrar gösterilmesin.
-class CandidatesActionErrorCleared extends CandidatesEvent {}
+class CandidatesToastShown extends CandidatesEvent {}

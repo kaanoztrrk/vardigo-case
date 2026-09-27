@@ -10,12 +10,20 @@ import 'package:vardigo_app/features/candidates/bloc/candidates/candidates_state
 import 'package:vardigo_app/features/candidates/data/enum/candidate_sort.dart';
 import 'package:vardigo_app/features/candidates/data/enum/candidate_tab.dart';
 import 'package:vardigo_app/features/candidates/data/repository/candidate_repository.dart';
+import 'package:vardigo_app/features/offers/data/repository/offer_repository.dart';
 
 const _base = 'http://api.test';
 
+const _names = {
+  'w_merve': 'Merve Y.',
+  'w_ferhat': 'Ferhat C.',
+  'w_derya': 'Derya A.',
+  'w_ayse': 'Ayşe K.',
+};
+
 Map<String, Object> _candidate(String id) => {
   'id': id,
-  'name': id,
+  'name': _names[id]!,
   'rating': '4.9',
   'attend': '%100 katılım',
   'km': '4.9 km',
@@ -31,14 +39,19 @@ const _byTab = {
   'similar': ['w_derya', 'w_ayse'],
 };
 
-/// Sahte sunucu: sekmeye göre liste döner, gelen istekleri [sent]'e
-/// yazar. [fail] true iken 500 döner; [delays] sekme başına gecikme.
+/// Sahte sunucu: GET'te sekmeye göre liste döner, gelen istekleri
+/// [sent]'e yazar. [fail] true iken 500 döner; [delays] sekme başına
+/// gecikme. POST /offers gövdelerini [posted]'a yazar; [busy]'deki
+/// adaylar için gerçek sunucu gibi atomik 409 döner.
 class _Server {
   final sent = <Uri>[];
   bool fail = false;
   Map<String, Duration> delays = {};
+  final posted = <List<String>>[];
+  Set<String> busy = {};
 
   http.Client get client => MockClient((request) async {
+    if (request.method == 'POST') return _offers(request);
     sent.add(request.url);
     final tab = request.url.queryParameters['tab']!;
     await Future.delayed(delays[tab] ?? Duration.zero);
@@ -59,6 +72,30 @@ class _Server {
     });
   });
 
+  Future<http.Response> _offers(http.Request request) async {
+    final ids = List<String>.from(jsonDecode(request.body)['workerIds']);
+    posted.add(ids);
+    // İstek sürerken ikinci dokunuşu deneyebilmek için.
+    await Future.delayed(const Duration(milliseconds: 10));
+    final conflicts = ids.where(busy.contains).toList();
+    if (conflicts.isNotEmpty) {
+      return _json(409, {
+        'ok': false,
+        'error': {
+          'code': 'OFFER_EXISTS',
+          'message': 'Bu adaylara zaten bekleyen bir talep var: $conflicts',
+          'ids': conflicts,
+        },
+      });
+    }
+    return _json(201, {
+      'ok': true,
+      'data': {
+        'created': ids.map((id) => {'workerId': id}).toList(),
+      },
+    });
+  }
+
   // Response(String) gövdeyi latin1 kodluyor, "katılım" sığmıyor.
   static http.Response _json(int status, Object body) => http.Response.bytes(
     utf8.encode(jsonEncode(body)),
@@ -73,9 +110,8 @@ void main() {
 
   setUp(() {
     server = _Server();
-    bloc = CandidatesBloc(
-      CandidateRepository(ApiService(client: server.client, baseUrl: _base)),
-    );
+    final api = ApiService(client: server.client, baseUrl: _base);
+    bloc = CandidatesBloc(CandidateRepository(api), OfferRepository(api));
   });
 
   tearDown(() => bloc.close());
@@ -88,6 +124,15 @@ void main() {
         .skipWhile((s) => !s.loading)
         .firstWhere((s) => !s.loading);
     bloc.add(event);
+    return done;
+  }
+
+  /// Gönderimi başlatır ve bitene kadar bekler.
+  Future<CandidatesState> sendOffers() {
+    final done = bloc.stream
+        .skipWhile((s) => !s.sending)
+        .firstWhere((s) => !s.sending);
+    bloc.add(CandidatesOffersSendRequested());
     return done;
   }
 
@@ -184,5 +229,58 @@ void main() {
 
     expect(bloc.state.tab, CandidateTab.perfect);
     expect(ids(bloc.state), ['w_merve', 'w_ferhat']);
+  });
+
+  group('talep gönderme', () {
+    test('seçilenleri gönderir, seçimi temizler, bilgi mesajı', () async {
+      await send(CandidatesRequested());
+      bloc.add(CandidateSelectionToggled('w_ferhat'));
+
+      final state = await sendOffers();
+
+      expect(server.posted.single, unorderedEquals(['w_merve', 'w_ferhat']));
+      expect(state.selectedIds, isEmpty);
+      expect(state.actionMessage, '2 kişiye görüşme talebi gönderildi.');
+      expect(state.actionError, isNull);
+    });
+
+    test(
+      '409: çakışan isimle bildirilir ve seçimden çıkar, diğeri kalır',
+      () async {
+        await send(CandidatesRequested());
+        // Seçim sekmeler arası ortak: Derya diğer sekmeden.
+        await send(CandidatesTabChanged(CandidateTab.similar));
+        bloc.add(CandidateSelectionToggled('w_derya'));
+        server.busy = {'w_merve'};
+
+        final state = await sendOffers();
+
+        expect(state.selectedIds, {'w_derya'});
+        expect(
+          state.actionError,
+          'Merve Y. için zaten bekleyen bir talep var, seçimden çıkarıldı.',
+        );
+        expect(state.actionMessage, isNull);
+      },
+    );
+
+    test('istek sürerken ikinci dokunuş yeni istek atmaz', () async {
+      await send(CandidatesRequested());
+
+      final done = sendOffers();
+      bloc.add(CandidatesOffersSendRequested());
+      await done;
+
+      expect(server.posted, hasLength(1));
+    });
+
+    test('seçim boşken istek atılmaz', () async {
+      await send(CandidatesRequested());
+      bloc.add(CandidateSelectionToggled('w_merve'));
+      bloc.add(CandidatesOffersSendRequested());
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(server.posted, isEmpty);
+    });
   });
 }

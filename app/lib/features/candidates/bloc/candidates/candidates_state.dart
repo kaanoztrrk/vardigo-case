@@ -26,8 +26,15 @@ class CandidatesState {
   /// Liste HİÇ gelmediyse: ekranın yerine hata + "Tekrar dene".
   final String? error;
 
-  /// Liste varken yenileme başarısız oldu: eski liste kalıyor, toast.
+  /// Talepler gönderiliyor — buton pasif.
+  final bool sending;
+
+  /// Tek seferlik hata toast'ı: liste varken yenileme ya da gönderim
+  /// başarısız oldu (eski liste kalıyor).
   final String? actionError;
+
+  /// Tek seferlik bilgi toast'ı ("2 kişiye görüşme talebi gönderildi.").
+  final String? actionMessage;
 
   const CandidatesState({
     this.candidates = const [],
@@ -39,7 +46,9 @@ class CandidatesState {
     this.loading = false,
     this.loaded = false,
     this.error,
+    this.sending = false,
     this.actionError,
+    this.actionMessage,
   });
 
   int get selectedCount => selectedIds.length;
@@ -59,8 +68,11 @@ class CandidatesState {
     bool? loaded,
     String? error,
     bool clearError = false,
+    bool? sending,
     String? actionError,
     bool clearActionError = false,
+    String? actionMessage,
+    bool clearActionMessage = false,
   }) {
     return CandidatesState(
       candidates: candidates ?? this.candidates,
@@ -72,7 +84,11 @@ class CandidatesState {
       loading: loading ?? this.loading,
       loaded: loaded ?? this.loaded,
       error: clearError ? null : (error ?? this.error),
+      sending: sending ?? this.sending,
       actionError: clearActionError ? null : (actionError ?? this.actionError),
+      actionMessage: clearActionMessage
+          ? null
+          : (actionMessage ?? this.actionMessage),
     );
   }
 }

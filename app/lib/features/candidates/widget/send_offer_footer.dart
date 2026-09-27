@@ -6,15 +6,23 @@ import '../../../core/widgets/icon/app_icon.dart';
 
 /// Sabit alt bar: "Görüşme Talebi Gönder (N)" (spec 01 → footer).
 class SendOfferFooter extends StatelessWidget {
-  const SendOfferFooter({super.key, required this.count, this.onSend});
+  const SendOfferFooter({
+    super.key,
+    required this.count,
+    required this.sending,
+    required this.onSend,
+  });
 
   final int count;
-  final VoidCallback? onSend;
+
+  /// İstek sürerken buton pasif: çift dokunuş iki istek atmasın.
+  final bool sending;
+  final VoidCallback onSend;
 
   @override
   Widget build(BuildContext context) {
     // 0 seçiliyken pasif: backend'e boş dizi gitmesin (spec 01).
-    final enabled = count > 0;
+    final enabled = count > 0 && !sending;
     return DecoratedBox(
       decoration: const BoxDecoration(
         color: AppColors.weak,

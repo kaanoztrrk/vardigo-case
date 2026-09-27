@@ -7,6 +7,7 @@ import '../../features/auth/bloc/auth_bloc.dart';
 import '../../features/auth/data/repository/auth_repository.dart';
 import '../../features/candidates/bloc/candidates/candidates_bloc.dart';
 import '../../features/candidates/data/repository/candidate_repository.dart';
+import '../../features/offers/data/repository/offer_repository.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -34,12 +35,16 @@ void setupDependencies() {
   getIt.registerLazySingleton<CandidateRepository>(
     () => CandidateRepository(getIt<ApiService>()),
   );
+  getIt.registerLazySingleton<OfferRepository>(
+    () => OfferRepository(getIt<ApiService>()),
+  );
 
   // --- Bloc'lar (veri bloc'ları singleton) ---
   getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(getIt<AuthRepository>()),
   );
   getIt.registerLazySingleton<CandidatesBloc>(
-    () => CandidatesBloc(getIt<CandidateRepository>()),
+    () =>
+        CandidatesBloc(getIt<CandidateRepository>(), getIt<OfferRepository>()),
   );
 }
