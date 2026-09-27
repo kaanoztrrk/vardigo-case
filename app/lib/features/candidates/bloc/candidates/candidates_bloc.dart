@@ -20,7 +20,7 @@ class CandidatesBloc extends Bloc<CandidatesEvent, CandidatesState> {
     : super(const CandidatesState()) {
     on<CandidatesRequested>((event, emit) => _load(emit));
     on<CandidatesTabChanged>(_onTabChanged);
-    on<CandidatesSortCycled>(_onSortCycled);
+    on<CandidatesSortSelected>(_onSortSelected);
     on<CandidateSelectionToggled>(_onSelectionToggled);
     on<CandidatesOffersSendRequested>(_onOffersSendRequested);
     on<CandidatesToastShown>(
@@ -42,11 +42,12 @@ class CandidatesBloc extends Bloc<CandidatesEvent, CandidatesState> {
     await _load(emit);
   }
 
-  Future<void> _onSortCycled(
-    CandidatesSortCycled event,
+  Future<void> _onSortSelected(
+    CandidatesSortSelected event,
     Emitter<CandidatesState> emit,
   ) async {
-    emit(state.copyWith(sort: state.sort.next));
+    if (event.sort == state.sort) return;
+    emit(state.copyWith(sort: event.sort));
     await _load(emit);
   }
 

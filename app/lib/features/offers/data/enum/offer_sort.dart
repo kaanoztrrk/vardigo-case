@@ -1,4 +1,4 @@
-/// Sort chip'in döngüsü: Önerilen → Süre → Ücret → Önerilen (karar B10).
+/// Ekran 2'nin sıralamaları, paneldeki sırasıyla (karar B10).
 ///
 /// Ekran 1'in tersine sıralama İSTEMCİDE: GET /offers'ın sort parametresi
 /// yok (spec 03) ve liste zaten birkaç kayıt.
@@ -15,6 +15,4 @@ enum OfferSort {
   const OfferSort(this.label);
 
   final String label;
-
-  OfferSort get next => values[(index + 1) % values.length];
 }

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_style.dart';
+import '../../../core/widgets/button/app_pressable.dart';
 import '../../../core/widgets/checkbox/app_checkbox.dart';
 import '../../../core/widgets/icon/app_icon.dart';
 import '../data/models/candidate_model.dart';
@@ -12,6 +13,9 @@ import '../data/models/candidate_model.dart';
 /// Seçili halin "inset 4 0 0 #335CFF" gölgesi Flutter'da yok; yerine
 /// kartın içine kırpılmış 4 px'lik bir şerit çiziliyor — köşelerde kartın
 /// radius'unu izliyor.
+///
+/// Seçim geçişi animasyonlu: zemin, border ve gölge [AnimatedContainer]
+/// ile, şerit genişliği 0 → 4 açılarak değişiyor.
 class CandidateCard extends StatelessWidget {
   const CandidateCard({
     super.key,
@@ -24,10 +28,16 @@ class CandidateCard extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
+  static const _duration = Duration(milliseconds: 200);
+
   @override
-  Widget build(BuildContext context) => GestureDetector(
+  Widget build(BuildContext context) => AppPressable(
     onTap: onTap,
-    child: Container(
+    // Geniş yüzey: küçük bir oran bile yeterince görünür.
+    pressedScale: 0.985,
+    child: AnimatedContainer(
+      duration: _duration,
+      curve: Curves.easeOut,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: selected ? AppColors.primaryLighter : AppColors.white,
@@ -70,14 +80,17 @@ class CandidateCard extends StatelessWidget {
               ],
             ),
           ),
-          if (selected)
-            const Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 4,
-              child: ColoredBox(color: AppColors.primary),
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: AnimatedContainer(
+              duration: _duration,
+              curve: Curves.easeOut,
+              width: selected ? 4 : 0,
+              color: AppColors.primary,
             ),
+          ),
         ],
       ),
     ),

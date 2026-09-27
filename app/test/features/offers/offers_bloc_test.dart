@@ -130,12 +130,12 @@ void main() {
     expect(state.subtitle, '12 talep yanıt bekliyor');
   });
 
-  test('sıralama istemcide: Önerilen → Süre → Ücret → Önerilen', () async {
+  test('sıralama istemcide: Süre, Ücret, Önerilen', () async {
     await load(OffersRequested());
 
     final orders = <OfferSort, List<String>>{};
-    for (var i = 0; i < 3; i++) {
-      final state = await act(OffersSortCycled());
+    for (final sort in [OfferSort.time, OfferSort.pay, OfferSort.recommended]) {
+      final state = await act(OffersSortSelected(sort));
       orders[state.sort] = ids(state.visibleOffers);
     }
 

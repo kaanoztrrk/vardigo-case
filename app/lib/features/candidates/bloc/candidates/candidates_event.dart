@@ -1,3 +1,4 @@
+import '../../data/enum/candidate_sort.dart';
 import '../../data/enum/candidate_tab.dart';
 
 abstract class CandidatesEvent {}
@@ -12,8 +13,12 @@ class CandidatesTabChanged extends CandidatesEvent {
   CandidatesTabChanged(this.tab);
 }
 
-/// Sort chip'e dokunuldu: sıradaki sıralamaya geç (bkz. CandidateSort.next).
-class CandidatesSortCycled extends CandidatesEvent {}
+/// Sıralama panelinden bir seçenek seçildi.
+class CandidatesSortSelected extends CandidatesEvent {
+  final CandidateSort sort;
+
+  CandidatesSortSelected(this.sort);
+}
 
 class CandidateSelectionToggled extends CandidatesEvent {
   final String candidateId;

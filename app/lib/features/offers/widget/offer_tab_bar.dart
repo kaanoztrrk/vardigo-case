@@ -14,6 +14,11 @@ class OfferTabBar extends StatelessWidget {
   final OfferTab active;
   final ValueChanged<OfferTab> onChanged;
 
+  static const _duration = Duration(milliseconds: 260);
+  static const _gap = 4.0;
+
+  // Beyaz pill tek bir parça ve sekmeler arasında KAYIYOR (Ekran 1'deki
+  // gibi); yazılar üstünde, renkleri geçişli değişiyor.
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(4),
@@ -21,35 +26,56 @@ class OfferTabBar extends StatelessWidget {
       color: AppColors.weak50,
       borderRadius: BorderRadius.circular(54),
     ),
-    child: Row(
-      spacing: 4,
-      children: [for (final tab in OfferTab.values) _pill(tab)],
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        const count = 3;
+        final pillWidth = (constraints.maxWidth - _gap * (count - 1)) / count;
+        return Stack(
+          children: [
+            AnimatedPositioned(
+              duration: _duration,
+              curve: Curves.easeOutCubic,
+              left: active.index * (pillWidth + _gap),
+              top: 0,
+              bottom: 0,
+              width: pillWidth,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(26),
+                  boxShadow: AppShadows.tabActiveRequests,
+                ),
+              ),
+            ),
+            Row(
+              spacing: _gap,
+              children: [for (final tab in OfferTab.values) _label(tab)],
+            ),
+          ],
+        );
+      },
     ),
   );
 
-  Widget _pill(OfferTab tab) {
-    final isActive = tab == active;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => onChanged(tab),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.white : null,
-            borderRadius: BorderRadius.circular(26),
-            boxShadow: isActive ? AppShadows.tabActiveRequests : null,
+  Widget _label(OfferTab tab) => Expanded(
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => onChanged(tab),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        child: AnimatedDefaultTextStyle(
+          duration: _duration,
+          style: AppTextStyle.tab13.copyWith(
+            color: tab == active ? AppColors.strong : AppColors.soft,
           ),
           child: Text(
             tab.label,
+            textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.tab13.copyWith(
-              color: isActive ? AppColors.strong : AppColors.soft,
-            ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
 }

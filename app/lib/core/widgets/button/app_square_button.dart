@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_shadows.dart';
 import '../icon/app_icon.dart';
+import 'app_pressable.dart';
 
 /// specs/00-design-tokens.txt → ORTAK KONTROLLER → Kare buton
 /// (geri / yardım).
@@ -13,7 +14,7 @@ class AppSquareButton extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
+  Widget build(BuildContext context) => AppPressable(
     onTap: onTap,
     child: Container(
       width: 44,

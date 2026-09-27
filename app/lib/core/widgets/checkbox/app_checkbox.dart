@@ -5,14 +5,19 @@ import '../icon/app_icon.dart';
 
 /// specs/00-design-tokens.txt → ORTAK KONTROLLER → Checkbox.
 /// Yalnızca görünüm: dokunmayı üstündeki kart yakalıyor (bütün kart
-/// tıklanabilir).
+/// tıklanabilir). Dolma/boşalma animasyonlu: renk geçiyor, tik büyüyerek
+/// beliriyor.
 class AppCheckbox extends StatelessWidget {
   const AppCheckbox({super.key, required this.checked});
 
   final bool checked;
 
+  static const _duration = Duration(milliseconds: 180);
+
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => AnimatedContainer(
+    duration: _duration,
+    curve: Curves.easeOut,
     width: 20,
     height: 20,
     decoration: BoxDecoration(
@@ -23,6 +28,15 @@ class AppCheckbox extends StatelessWidget {
       ),
     ),
     // Spec "tik çizilmese de olur" diyor; referansta tik var.
-    child: checked ? const AppIcon('check', size: 18) : null,
+    child: AnimatedScale(
+      scale: checked ? 1 : 0.4,
+      duration: _duration,
+      curve: Curves.easeOutBack,
+      child: AnimatedOpacity(
+        opacity: checked ? 1 : 0,
+        duration: _duration,
+        child: const AppIcon('check', size: 18),
+      ),
+    ),
   );
 }

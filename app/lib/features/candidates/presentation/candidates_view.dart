@@ -4,9 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/widgets/button/app_sort_chip.dart';
+import '../../../core/widgets/sheet/app_sort_sheet.dart';
+import '../../../core/widgets/text/app_animated_count.dart';
 import '../bloc/candidates/candidates_bloc.dart';
 import '../bloc/candidates/candidates_event.dart';
 import '../bloc/candidates/candidates_state.dart';
+import '../data/enum/candidate_sort.dart';
 import '../widget/candidate_card.dart';
 import '../widget/candidate_tab_bar.dart';
 import '../widget/candidates_header.dart';
@@ -76,19 +79,42 @@ class _CandidatesViewState extends State<CandidatesView> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
               child: Row(
                 children: [
-                  Text(
-                    '${state.selectedCount} kişi seçildi',
+                  AppAnimatedCount(
+                    count: state.selectedCount,
+                    suffix: ' kişi seçildi',
                     style: AppTextStyle.title16Semi,
                   ),
                   const Spacer(),
                   AppSortChip(
                     label: state.sort.label,
-                    onTap: () => bloc.add(CandidatesSortCycled()),
+                    onTap: () => _pickSort(context, state.sort),
                   ),
                 ],
               ),
             ),
-            Expanded(child: _List(state: state)),
+            Expanded(
+              // Yükleniyor → liste → (sekme/sıralama değişince) yeni liste
+              // arasında yumuşak geçiş. Anahtar listenin İÇERİĞİ: seçim
+              // değişince (aynı liste) geçiş olmasın.
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOutCubic,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0, 0.02),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                ),
+                child: KeyedSubtree(
+                  key: ValueKey(_listKey(state)),
+                  child: _List(state: state),
+                ),
+              ),
+            ),
             SendOfferFooter(
               count: state.selectedCount,
               sending: state.sending,
@@ -98,6 +124,21 @@ class _CandidatesViewState extends State<CandidatesView> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickSort(BuildContext context, CandidateSort current) async {
+    final bloc = context.read<CandidatesBloc>();
+    final picked = await showAppSortSheet<CandidateSort>(
+      context: context,
+      options: [for (final s in CandidateSort.values) (s, s.label)],
+      selected: current,
+    );
+    if (picked != null) bloc.add(CandidatesSortSelected(picked));
+  }
+
+  static String _listKey(CandidatesState state) {
+    if (!state.loaded) return state.error == null ? 'loading' : 'error';
+    return state.candidates.map((c) => c.id).join(',');
   }
 }
 

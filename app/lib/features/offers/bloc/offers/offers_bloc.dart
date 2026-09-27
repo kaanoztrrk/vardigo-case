@@ -16,8 +16,8 @@ class OffersBloc extends Bloc<OffersEvent, OffersState> {
   OffersBloc(this._repository) : super(const OffersState()) {
     on<OffersRequested>((event, emit) => _load(emit));
     on<OffersTabChanged>(_onTabChanged);
-    on<OffersSortCycled>(
-      (event, emit) => emit(state.copyWith(sort: state.sort.next)),
+    on<OffersSortSelected>(
+      (event, emit) => emit(state.copyWith(sort: event.sort)),
     );
     on<OfferAnswerRequested>(_onAnswerRequested);
     on<OfferDetailToggled>(_onDetailToggled);
@@ -32,8 +32,10 @@ class OffersBloc extends Bloc<OffersEvent, OffersState> {
   ) async {
     if (event.tab == state.tab) return;
     // Sekme HEMEN değişiyor; eski sekmenin kartları yenisi gelene kadar
-    // görünmesin (yanlış sekmede buton göstermek olurdu).
-    emit(state.copyWith(tab: event.tab, offers: const []));
+    // görünmesin (yanlış sekmede buton göstermek olurdu). `loaded` de
+    // sıfırlanıyor: ekran yeni sekmeyi "henüz yüklenmedi" diye çizsin —
+    // 60 sn'lik tazeleme ise loaded'ı bozmadığı için göstergesiz geçiyor.
+    emit(state.copyWith(tab: event.tab, offers: const [], loaded: false));
     await _load(emit);
   }
 

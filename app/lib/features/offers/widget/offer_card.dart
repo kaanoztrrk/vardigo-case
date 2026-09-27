@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_style.dart';
+import '../../../core/widgets/button/app_pressable.dart';
 import '../../../core/widgets/icon/app_icon.dart';
 import '../data/enum/offer_status.dart';
 import '../data/models/offer_detail_model.dart';
@@ -77,7 +78,16 @@ class OfferCard extends StatelessWidget {
           ],
           const SizedBox(height: 12),
           _DetailButton(expanded: expanded, onTap: onToggleDetail),
-          if (expanded) _Detail(offer: offer, detail: detail),
+          // Detay yumuşakça açılıp kapanıyor; yüklenirken → içerik geçişi
+          // de solarak.
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: expanded
+                ? _Detail(offer: offer, detail: detail)
+                : const SizedBox(width: double.infinity),
+          ),
           const SizedBox(height: 10),
           pending
               ? _Countdown(offer: offer, urgent: offer.isUrgent(now))
@@ -197,7 +207,7 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-    child: GestureDetector(
+    child: AppPressable(
       onTap: onTap,
       child: Container(
         height: 36,
@@ -225,7 +235,7 @@ class _DetailButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
+  Widget build(BuildContext context) => AppPressable(
     onTap: onTap,
     child: Container(
       height: 36,
@@ -238,9 +248,13 @@ class _DetailButton extends StatelessWidget {
         spacing: 8,
         children: [
           const AppIcon('eye', size: 20, color: AppColors.sub),
-          Text(
-            expanded ? 'Detayları Gizle' : 'Detayları Gör',
-            style: AppTextStyle.label14.copyWith(color: AppColors.sub),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: Text(
+              expanded ? 'Detayları Gizle' : 'Detayları Gör',
+              key: ValueKey(expanded),
+              style: AppTextStyle.label14.copyWith(color: AppColors.sub),
+            ),
           ),
         ],
       ),
@@ -262,16 +276,27 @@ class _Detail extends StatelessWidget {
     final d = detail;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: d == null
-          ? Text('Yükleniyor…', style: style)
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
-                Text('${d.city}, ${offer.district} · ${d.note}', style: style),
-                Text('₺${offer.pay} / ay · ${offer.when}', style: style),
-              ],
-            ),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        layoutBuilder: (current, previous) => Stack(
+          alignment: Alignment.topLeft,
+          children: [...previous, ?current],
+        ),
+        child: d == null
+            ? Text('Yükleniyor…', key: const ValueKey('loading'), style: style)
+            : Column(
+                key: const ValueKey('detail'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
+                children: [
+                  Text(
+                    '${d.city}, ${offer.district} · ${d.note}',
+                    style: style,
+                  ),
+                  Text('₺${offer.pay} / ay · ${offer.when}', style: style),
+                ],
+              ),
+      ),
     );
   }
 }

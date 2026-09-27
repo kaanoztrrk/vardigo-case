@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
+import '../../../core/widgets/button/app_pressable.dart';
 import '../../../core/widgets/icon/app_icon.dart';
+import '../../../core/widgets/text/app_animated_count.dart';
 
 /// Sabit alt bar: "Görüşme Talebi Gönder (N)" (spec 01 → footer).
 class SendOfferFooter extends StatelessWidget {
@@ -36,9 +38,10 @@ class SendOfferFooter extends StatelessWidget {
           // Home indicator alanı + referanstaki boşluk.
           MediaQuery.paddingOf(context).bottom + 16,
         ),
-        child: GestureDetector(
+        child: AppPressable(
           onTap: enabled ? onSend : null,
-          child: Opacity(
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
             opacity: enabled ? 1 : 0.45,
             child: Container(
               height: 44,
@@ -51,8 +54,10 @@ class SendOfferFooter extends StatelessWidget {
                 spacing: 8,
                 children: [
                   const AppIcon('send', size: 20, color: AppColors.white),
-                  Text(
-                    'Görüşme Talebi Gönder ($count)',
+                  AppAnimatedCount(
+                    count: count,
+                    prefix: 'Görüşme Talebi Gönder (',
+                    suffix: ')',
                     style: AppTextStyle.label14,
                   ),
                 ],

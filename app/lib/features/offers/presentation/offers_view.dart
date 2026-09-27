@@ -6,10 +6,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/widgets/button/app_sort_chip.dart';
+import '../../../core/widgets/sheet/app_sort_sheet.dart';
 import '../bloc/offers/offers_bloc.dart';
 import '../bloc/offers/offers_event.dart';
 import '../bloc/offers/offers_state.dart';
+import '../data/enum/offer_sort.dart';
 import '../widget/offer_card.dart';
+import '../widget/offer_list.dart';
 import '../widget/offer_tab_bar.dart';
 import '../widget/offers_header.dart';
 
@@ -83,12 +86,30 @@ class _OffersViewState extends State<OffersView> {
                 ],
               ),
             ),
-            Expanded(child: _List(state: state)),
+            Expanded(
+              // Yükleniyor ↔ liste ↔ (sekme / sıralama değişince) yeni liste
+              // arasında yumuşak geçiş. Aynı sekmedeki kart ekleme /
+              // çıkarma ise OfferList'in kendi animasyonu.
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOutCubic,
+                child: KeyedSubtree(
+                  key: ValueKey(_bodyKey(state)),
+                  child: _List(state: state),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+String _bodyKey(OffersState state) {
+  if (!state.loaded && state.error != null) return 'error';
+  if (!state.loaded) return 'loading';
+  return 'list|${state.tab.name}|${state.sort.name}';
 }
 
 class _List extends StatelessWidget {
@@ -107,50 +128,56 @@ class _List extends StatelessWidget {
         onRetry: () => bloc.add(OffersRequested()),
       );
     }
-    // Sekme değişince liste boşaltılıyor (bkz. OffersBloc._onTabChanged):
-    // boş + yükleniyor = "boş state" değil, bekleme.
-    if (!state.loaded || (state.loading && offers.isEmpty)) {
+    if (!state.loaded) {
       return const Center(child: CircularProgressIndicator());
     }
 
     final now = DateTime.now();
-    return ListView(
+    return OfferList(
+      offers: offers,
       padding: EdgeInsets.fromLTRB(
         20,
         0,
         20,
         MediaQuery.paddingOf(context).bottom + 16,
       ),
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: AppSortChip(
-              label: state.sort.label,
-              onTap: () => bloc.add(OffersSortCycled()),
-            ),
+      header: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: AppSortChip(
+            label: state.sort.label,
+            onTap: () => _pickSort(context, state.sort),
           ),
         ),
-        if (offers.isEmpty) _Message(text: state.tab.emptyText),
-        for (final offer in offers)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: OfferCard(
-              key: ValueKey(offer.id),
-              offer: offer,
-              now: now,
-              expanded: state.expandedIds.contains(offer.id),
-              detail: state.details[offer.id],
-              onAccept: () =>
-                  bloc.add(OfferAnswerRequested(offer.id, accept: true)),
-              onReject: () =>
-                  bloc.add(OfferAnswerRequested(offer.id, accept: false)),
-              onToggleDetail: () => bloc.add(OfferDetailToggled(offer.id)),
-            ),
-          ),
-      ],
+      ),
+      empty: _Message(text: state.tab.emptyText),
+      itemBuilder: (offer) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: OfferCard(
+          key: ValueKey(offer.id),
+          offer: offer,
+          now: now,
+          expanded: state.expandedIds.contains(offer.id),
+          detail: state.details[offer.id],
+          onAccept: () =>
+              bloc.add(OfferAnswerRequested(offer.id, accept: true)),
+          onReject: () =>
+              bloc.add(OfferAnswerRequested(offer.id, accept: false)),
+          onToggleDetail: () => bloc.add(OfferDetailToggled(offer.id)),
+        ),
+      ),
     );
+  }
+
+  Future<void> _pickSort(BuildContext context, OfferSort current) async {
+    final bloc = context.read<OffersBloc>();
+    final picked = await showAppSortSheet<OfferSort>(
+      context: context,
+      options: [for (final s in OfferSort.values) (s, s.label)],
+      selected: current,
+    );
+    if (picked != null) bloc.add(OffersSortSelected(picked));
   }
 }
 

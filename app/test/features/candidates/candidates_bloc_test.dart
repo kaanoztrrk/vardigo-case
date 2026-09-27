@@ -173,25 +173,28 @@ void main() {
     expect(state.activeTotal, 16);
   });
 
-  test('sort chip döngüsü: Önerilen → En Yakın → Puan → Önerilen', () async {
+  test('panelden seçilen sıralama sunucuya gider', () async {
     await send(CandidatesRequested());
 
-    final sorts = <CandidateSort>[];
-    for (var i = 0; i < 3; i++) {
-      sorts.add((await send(CandidatesSortCycled())).sort);
-    }
+    final near = await send(CandidatesSortSelected(CandidateSort.near));
+    final rating = await send(CandidatesSortSelected(CandidateSort.rating));
 
-    expect(sorts, [
-      CandidateSort.near,
-      CandidateSort.rating,
-      CandidateSort.recommended,
-    ]);
+    expect(near.sort, CandidateSort.near);
+    expect(rating.sort, CandidateSort.rating);
     expect(server.sent.map((u) => u.queryParameters['sort']), [
       'recommended',
       'near',
       'rating',
-      'recommended',
     ]);
+  });
+
+  test('zaten seçili sıralama seçilirse istek atılmaz', () async {
+    await send(CandidatesRequested());
+
+    bloc.add(CandidatesSortSelected(CandidateSort.recommended));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+
+    expect(server.sent, hasLength(1));
   });
 
   test('ilk yükleme başarısız: error, liste yok', () async {
@@ -210,7 +213,7 @@ void main() {
       await send(CandidatesRequested());
       server.fail = true;
 
-      final state = await send(CandidatesSortCycled());
+      final state = await send(CandidatesSortSelected(CandidateSort.near));
 
       expect(ids(state), ['w_merve', 'w_ferhat']);
       expect(state.error, isNull);

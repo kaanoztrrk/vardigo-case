@@ -24,43 +24,67 @@ class CandidateTabBar extends StatelessWidget {
   final int totalSimilar;
   final ValueChanged<CandidateTab> onChanged;
 
+  static const _duration = Duration(milliseconds: 260);
+
+  // Aktif pill tek bir parça ve iki sekme arasında KAYIYOR; yazılar
+  // üstünde, renkleri geçişli değişiyor.
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
       color: AppColors.slate100,
       borderRadius: BorderRadius.circular(12),
     ),
-    child: Row(
+    child: Stack(
       children: [
-        _pill(CandidateTab.perfect, '%100 Eşleşme ($totalPerfect)'),
-        _pill(CandidateTab.similar, 'Benzer Personeller ($totalSimilar)'),
+        Positioned.fill(
+          child: AnimatedAlign(
+            duration: _duration,
+            curve: Curves.easeOutCubic,
+            alignment: active == CandidateTab.perfect
+                ? Alignment.centerLeft
+                : Alignment.centerRight,
+            child: FractionallySizedBox(
+              widthFactor: 0.5,
+              heightFactor: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: AppShadows.tabActiveMatches,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            _label(CandidateTab.perfect, '%100 Eşleşme ($totalPerfect)'),
+            _label(CandidateTab.similar, 'Benzer Personeller ($totalSimilar)'),
+          ],
+        ),
       ],
     ),
   );
 
-  Widget _pill(CandidateTab tab, String label) {
-    final isActive = tab == active;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => onChanged(tab),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : null,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: isActive ? AppShadows.tabActiveMatches : null,
+  Widget _label(CandidateTab tab, String label) => Expanded(
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => onChanged(tab),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        child: AnimatedDefaultTextStyle(
+          duration: _duration,
+          style: AppTextStyle.caption12Medium.copyWith(
+            color: tab == active ? AppColors.white : AppColors.slate500,
           ),
           child: Text(
             label,
+            textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.caption12Medium.copyWith(
-              color: isActive ? AppColors.white : AppColors.slate500,
-            ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
 }

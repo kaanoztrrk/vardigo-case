@@ -1,5 +1,6 @@
-/// Sort chip'in döngüsü: Önerilen → En Yakın → Puan → Önerilen
-/// (spec 01 → "tıklayınca döngü"). Sıralamayı sunucu yapıyor.
+/// Ekran 1'in sıralamaları, paneldeki sırasıyla. Sıralamayı sunucu
+/// yapıyor. (Spec 01 chip'e basınca döngü diyor; panele çevrildi — bkz.
+/// showAppSortSheet.)
 enum CandidateSort {
   recommended('recommended', 'Önerilen'),
   near('near', 'En Yakın'),
@@ -10,6 +11,4 @@ enum CandidateSort {
   /// GET /api/candidates?sort=
   final String value;
   final String label;
-
-  CandidateSort get next => values[(index + 1) % values.length];
 }

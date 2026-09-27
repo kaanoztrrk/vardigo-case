@@ -1,3 +1,4 @@
+import '../../data/enum/offer_sort.dart';
 import '../../data/enum/offer_tab.dart';
 
 abstract class OffersEvent {}
@@ -12,8 +13,12 @@ class OffersTabChanged extends OffersEvent {
   OffersTabChanged(this.tab);
 }
 
-/// Sort chip'e dokunuldu: sıradaki sıralamaya geç (bkz. OfferSort.next).
-class OffersSortCycled extends OffersEvent {}
+/// Sıralama panelinden bir seçenek seçildi.
+class OffersSortSelected extends OffersEvent {
+  final OfferSort sort;
+
+  OffersSortSelected(this.sort);
+}
 
 /// İlgileniyorum ([accept] true) / İlgilenmiyorum ([accept] false).
 class OfferAnswerRequested extends OffersEvent {
