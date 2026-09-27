@@ -7,9 +7,12 @@ environment:
   sdk: ^3.11.5
 
 dependencies:
+  equatable: ^3.0.0
   flutter:
     sdk: flutter
   flutter_svg: ^2.2.1
+  get_it: ^9.3.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
