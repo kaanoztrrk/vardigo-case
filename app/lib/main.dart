@@ -10,6 +10,6 @@ void main() {
   setupDependencies();
   // Şimdilik uygulama işveren olarak açılıyor; rol seçici gelince
   // varsayılan rol oradan değişecek.
-  getIt<AuthBloc>().add(AuthRoleSelected(UserRole.employer));
+  getIt<AuthBloc>().add(AuthRoleSelected(UserRole.worker));
   runApp(const VardigoApp());
 }

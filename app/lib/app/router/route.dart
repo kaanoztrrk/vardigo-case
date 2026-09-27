@@ -7,4 +7,7 @@ class AppRoutes {
 
   /// Ekran 1 — Eşleşen Personeller (işveren).
   static const candidatesView = '/candidates';
+
+  /// Ekran 2 — Görüşme Talepleri (iş arayan).
+  static const offersView = '/offers';
 }

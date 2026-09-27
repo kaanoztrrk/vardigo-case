@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../core/widgets/main/phone_frame.dart';
 import 'router/app_router.dart';
+import 'router/route.dart';
 
 /// Uygulamanın kökü.
 ///
@@ -37,10 +38,55 @@ class VardigoApp extends StatelessWidget {
           // küçülür.
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            child: PhoneFrame(child: child ?? const SizedBox.shrink()),
+            child: _Frame(child: child ?? const SizedBox.shrink()),
           ),
         ),
       ),
     ),
   );
+}
+
+/// Telefon çerçevesi + aktif route'a göre home indicator.
+///
+/// Referans 2'de home indicator yok ve kartlar alt bezel'e kadar iniyor
+/// (spec 02: "home bar zorunlu değil"). Çerçeve route ağacının dışında,
+/// o yüzden aktif route'u router'dan okuyor. Router build SIRASINDA da
+/// haber verebildiği için güncelleme bir sonraki kareye erteleniyor.
+class _Frame extends StatefulWidget {
+  const _Frame({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_Frame> createState() => _FrameState();
+}
+
+class _FrameState extends State<_Frame> {
+  bool _showHomeIndicator = true;
+
+  @override
+  void initState() {
+    super.initState();
+    router.routerDelegate.addListener(_onRouteChanged);
+  }
+
+  @override
+  void dispose() {
+    router.routerDelegate.removeListener(_onRouteChanged);
+    super.dispose();
+  }
+
+  void _onRouteChanged() {
+    final show =
+        router.routerDelegate.currentConfiguration.uri.path !=
+        AppRoutes.offersView;
+    if (show == _showHomeIndicator) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _showHomeIndicator = show);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      PhoneFrame(showHomeIndicator: _showHomeIndicator, child: widget.child);
 }

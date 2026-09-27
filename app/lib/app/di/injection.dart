@@ -7,6 +7,7 @@ import '../../features/auth/bloc/auth_bloc.dart';
 import '../../features/auth/data/repository/auth_repository.dart';
 import '../../features/candidates/bloc/candidates/candidates_bloc.dart';
 import '../../features/candidates/data/repository/candidate_repository.dart';
+import '../../features/offers/bloc/offers/offers_bloc.dart';
 import '../../features/offers/data/repository/offer_repository.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -46,5 +47,8 @@ void setupDependencies() {
   getIt.registerLazySingleton<CandidatesBloc>(
     () =>
         CandidatesBloc(getIt<CandidateRepository>(), getIt<OfferRepository>()),
+  );
+  getIt.registerLazySingleton<OffersBloc>(
+    () => OffersBloc(getIt<OfferRepository>()),
   );
 }
