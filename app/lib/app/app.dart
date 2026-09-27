@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 import '../core/widgets/main/phone_frame.dart';
+import '../features/auth/bloc/auth_bloc.dart';
+import '../features/auth/widget/role_switch.dart';
+import 'di/injection.dart';
 import 'router/app_router.dart';
 import 'router/route.dart';
 
@@ -29,17 +32,25 @@ class VardigoApp extends StatelessWidget {
     // Material: çerçeve Navigator'ın dışında kaldığı için status bar'daki
     // saat bir Material'ın altında değil — yoksa metin varsayılan sarı
     // alt çizgiyle çiziliyor.
+    //
+    // Rol anahtarı çerçevenin ÜSTÜNDE, sayfa zemininde: uygulamanın değil
+    // demonun kontrolü (bkz. RoleSwitch).
     builder: (context, child) => Material(
       color: AppColors.slate100,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          // Tarayıcı penceresi 844 px'ten kısaysa telefon orantılı
-          // küçülür.
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: _Frame(child: child ?? const SizedBox.shrink()),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            RoleSwitch(bloc: getIt<AuthBloc>()),
+            const SizedBox(height: 20),
+            // Tarayıcı penceresi kısaysa telefon orantılı küçülür.
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: _Frame(child: child ?? const SizedBox.shrink()),
+              ),
+            ),
+          ],
         ),
       ),
     ),
