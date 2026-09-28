@@ -1,14 +1,14 @@
 import 'candidate_model.dart';
 
-/// GET /api/candidates cevabının tamamı.
+/// Full GET /api/candidates response.
 class CandidateListModel {
-  /// Sekme başlıklarındaki (26) / (16). Seed'de sabit etiket; listedeki
-  /// gerçek adet 4 (spec 01: "case için yeterli").
+  /// The (26) / (16) in the tab titles. Fixed labels from the seed; the
+  /// actual list has 4 (the spec says that's enough).
   final int totalPerfect;
   final int totalSimilar;
 
-  /// İlk yüklemede listenin başından kaç adayın seçili geleceği
-  /// (referansta "1 kişi seçildi").
+  /// How many candidates from the top start selected on first load
+  /// ("1 kişi seçildi" in the reference).
   final int selectedHint;
 
   final List<CandidateModel> candidates;

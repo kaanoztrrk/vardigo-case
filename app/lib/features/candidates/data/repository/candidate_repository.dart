@@ -12,8 +12,8 @@ class CandidateRepository {
 
   static const String _tag = 'CandidateRepo';
 
-  /// Sekmeye göre süzülmüş, sıralanmış aday listesi. Hata olursa
-  /// [Failure] fırlatır (ApiService'ten).
+  /// Candidates for the given tab, sorted by the server. Throws a
+  /// [Failure] on error.
   Future<CandidateListModel> fetchCandidates({
     required CandidateTab tab,
     required CandidateSort sort,

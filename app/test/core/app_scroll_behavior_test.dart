@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vardigo_app/core/theme/app_scroll_behavior.dart';
 
-/// Masaüstü tarayıcıda telefon ekranındaki liste fareyle çekilince kaymalı
-/// (Flutter'ın varsayılanında kaymıyor).
+/// On desktop browsers, dragging the list with the mouse should scroll it
+/// (Flutter doesn't by default).
 void main() {
   Future<double> dragWith(WidgetTester tester, PointerDeviceKind kind) async {
     final controller = ScrollController();

@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-/// Basılınca hafifçe küçülüp bırakınca geri gelen dokunma alanı — tüm
-/// buton, chip ve kartların ortak basma geri bildirimi.
+/// Shrinks slightly while pressed. Shared press feedback for buttons,
+/// chips and cards.
 ///
-/// [onTap] null ise pasif: ne küçülür ne dokunmayı yakalar.
+/// With a null [onTap] it's inert: no shrink, no tap handling.
 class AppPressable extends StatefulWidget {
   const AppPressable({
     super.key,
@@ -15,8 +15,8 @@ class AppPressable extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
 
-  /// Büyük yüzeylerde (kart) daha az küçülmesi için ayarlanabilir; küçük
-  /// oranda bile geniş bir kart göze fazla oynak geliyor.
+  /// Use a smaller value for large surfaces like cards; even a small
+  /// scale looks jumpy on something that wide.
   final double pressedScale;
 
   @override

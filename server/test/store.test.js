@@ -21,8 +21,8 @@ test('seed süreleri şimdiye göre hesaplanır, seed değişmez', () => {
 
   const garson = data.offers.find((o) => o.id === 'o_garson');
   const komi = data.offers.find((o) => o.id === 'o_komi');
-  assert.equal(garson.expiresAt, '2026-09-27T07:32:00.000Z'); // +21s 32dk
-  assert.equal(komi.expiresAt, '2026-09-27T04:00:00.000Z'); // +18s
+  assert.equal(garson.expiresAt, '2026-09-27T07:32:00.000Z'); // +21h 32m
+  assert.equal(komi.expiresAt, '2026-09-27T04:00:00.000Z'); // +18h
   assert.equal(seed.offers[0].expiresAt, 'USE_NOW_PLUS_21H32M');
 });
 

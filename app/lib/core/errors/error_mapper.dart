@@ -1,19 +1,18 @@
 import 'app_logger.dart';
 import 'failures.dart';
 
-/// Sunucunun hata zarfını ve HTTP/ağ exception'larını standart bir
-/// [Failure]'a çevirir; aynı anda [AppLogger] ile loglar.
+/// Turns server error envelopes and HTTP/network exceptions into a
+/// [Failure], and logs them with [AppLogger].
 ///
-/// [tag] hangi katmandan çağrıldığını belirtir (ör. 'Api') — log çıktısında
-/// bu etiket görünüyor.
+/// [tag] shows up in the log to tell where the call came from (e.g. 'Api').
 class ErrorMapper {
   ErrorMapper._();
 
-  /// Sunucu cevap verdi ama `ok: false` döndü.
+  /// The server answered with `ok: false`.
   ///
-  /// Zarf: `{ "ok": false, "error": { "code", "message", "ids"? } }`
-  /// (bkz. server/src/http.js). Durum koduna göre tip seçiliyor; mesaj ve
-  /// kod sunucudan olduğu gibi taşınıyor.
+  /// Envelope: `{ "ok": false, "error": { "code", "message", "ids"? } }`
+  /// (see server/src/http.js). The status code picks the type; message and
+  /// code are passed through as is.
   static Failure fromResponse(
     int statusCode,
     Object? error, {
@@ -43,7 +42,7 @@ class ErrorMapper {
     return failure;
   }
 
-  /// İstek hiç tamamlanamadı ya da cevap okunamadı.
+  /// The request never completed, or the response couldn't be read.
   static Failure fromException(
     Object error,
     StackTrace stackTrace, {

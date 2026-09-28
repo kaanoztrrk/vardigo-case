@@ -1,15 +1,15 @@
-/// Ekran 2'nin sıralamaları, paneldeki sırasıyla (karar B10).
+/// Sort options for screen 2, in sheet order.
 ///
-/// Ekran 1'in tersine sıralama İSTEMCİDE: GET /offers'ın sort parametresi
-/// yok (spec 03) ve liste zaten birkaç kayıt.
+/// Unlike screen 1, sorting happens on the client: GET /offers has no sort
+/// param in the spec, and the list is only a few items.
 enum OfferSort {
-  /// Sunucunun sırası: en yeni talep üstte.
+  /// Server order, newest first.
   recommended('Önerilen'),
 
-  /// Süresi en yakında dolan üstte.
+  /// Soonest to expire first.
   time('Süre'),
 
-  /// Ücreti en yüksek üstte.
+  /// Highest pay first.
   pay('Ücret');
 
   const OfferSort(this.label);

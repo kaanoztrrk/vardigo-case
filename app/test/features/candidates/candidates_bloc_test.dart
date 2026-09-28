@@ -33,16 +33,16 @@ Map<String, Object> _candidate(String id) => {
   'payMatch': true,
 };
 
-// Sunucudaki sekme ayrımının kısaltılmışı (bkz. server/data/seed.json).
+// Trimmed-down version of the server's tab split (see server/data/seed.json).
 const _byTab = {
   'perfect': ['w_merve', 'w_ferhat'],
   'similar': ['w_derya', 'w_ayse'],
 };
 
-/// Sahte sunucu: GET'te sekmeye göre liste döner, gelen istekleri
-/// [sent]'e yazar. [fail] true iken 500 döner; [delays] sekme başına
-/// gecikme. POST /offers gövdelerini [posted]'a yazar; [busy]'deki
-/// adaylar için gerçek sunucu gibi atomik 409 döner.
+/// Fake server: GET returns the list for the tab and records requests in
+/// [sent]. [fail] makes it return 500; [delays] sets a delay per tab.
+/// POST /offers bodies go into [posted], and candidates in [busy] get an
+/// all-or-nothing 409 like the real server.
 class _Server {
   final sent = <Uri>[];
   bool fail = false;
@@ -75,7 +75,7 @@ class _Server {
   Future<http.Response> _offers(http.Request request) async {
     final ids = List<String>.from(jsonDecode(request.body)['workerIds']);
     posted.add(ids);
-    // İstek sürerken ikinci dokunuşu deneyebilmek için.
+    // So a second tap can be tried while the request is in flight.
     await Future.delayed(const Duration(milliseconds: 10));
     final conflicts = ids.where(busy.contains).toList();
     if (conflicts.isNotEmpty) {
@@ -96,7 +96,7 @@ class _Server {
     });
   }
 
-  // Response(String) gövdeyi latin1 kodluyor, "katılım" sığmıyor.
+  // Response(String) encodes as latin1, which can't hold "katılım".
   static http.Response _json(int status, Object body) => http.Response.bytes(
     utf8.encode(jsonEncode(body)),
     status,
@@ -116,9 +116,9 @@ void main() {
 
   tearDown(() => bloc.close());
 
-  /// Olayı atar ve yükleme bitene kadar bekler. Önce yüklemenin
-  /// BAŞLAMASI bekleniyor: sekme/sıralama değişimi, yükleme başlamadan
-  /// önce loading=false olan bir state daha yayıyor.
+  /// Adds the event and waits for loading to finish. It waits for loading
+  /// to start first, because a tab/sort change emits one more
+  /// loading=false state before the load begins.
   Future<CandidatesState> send(CandidatesEvent event) {
     final done = bloc.stream
         .skipWhile((s) => !s.loading)
@@ -127,7 +127,7 @@ void main() {
     return done;
   }
 
-  /// Gönderimi başlatır ve bitene kadar bekler.
+  /// Starts a send and waits for it to finish.
   Future<CandidatesState> sendOffers() {
     final done = bloc.stream
         .skipWhile((s) => !s.sending)
@@ -225,7 +225,7 @@ void main() {
     await send(CandidatesRequested());
     server.delays = {'similar': const Duration(milliseconds: 50)};
 
-    // Benzer'e geçip cevap gelmeden %100'e geri dön.
+    // Switch to Benzer, then back to %100 before the response arrives.
     bloc.add(CandidatesTabChanged(CandidateTab.similar));
     bloc.add(CandidatesTabChanged(CandidateTab.perfect));
     await Future<void>.delayed(const Duration(milliseconds: 100));
@@ -251,7 +251,7 @@ void main() {
       '409: çakışan isimle bildirilir ve seçimden çıkar, diğeri kalır',
       () async {
         await send(CandidatesRequested());
-        // Seçim sekmeler arası ortak: Derya diğer sekmeden.
+        // Selection is shared across tabs; Derya is from the other tab.
         await send(CandidatesTabChanged(CandidateTab.similar));
         bloc.add(CandidateSelectionToggled('w_derya'));
         server.busy = {'w_merve'};

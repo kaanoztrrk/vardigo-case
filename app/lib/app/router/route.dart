@@ -1,13 +1,13 @@
-/// Uygulamadaki tüm route path'lerinin tek merkezi.
+/// All route paths in one place.
 class AppRoutes {
   AppRoutes._();
 
-  /// Giriş sürerken / başarısız olduysa.
+  /// Shown while logging in, or if login failed.
   static const splashView = '/';
 
-  /// Ekran 1 — Eşleşen Personeller (işveren).
+  /// Screen 1: Eşleşen Personeller (employer).
   static const candidatesView = '/candidates';
 
-  /// Ekran 2 — Görüşme Talepleri (iş arayan).
+  /// Screen 2: Görüşme Talepleri (worker).
   static const offersView = '/offers';
 }

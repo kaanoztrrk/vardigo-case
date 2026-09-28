@@ -14,9 +14,8 @@ import '../../features/offers/presentation/offers_view.dart';
 import '../di/injection.dart';
 import 'route.dart';
 
-/// AuthBloc'un state akışını GoRouter'ın anlayacağı bir [Listenable]'a
-/// çevirir: giriş tamamlanınca redirect yeniden çalışıp kullanıcıyı
-/// açılış ekranından alıyor.
+/// Wraps the AuthBloc stream in a [Listenable] so GoRouter re-runs
+/// redirect once login finishes and moves the user off the splash screen.
 class GoRouterRefreshStream extends ChangeNotifier {
   late final StreamSubscription<dynamic> _subscription;
 
@@ -35,9 +34,9 @@ final GoRouter router = GoRouter(
   initialLocation: AppRoutes.splashView,
   refreshListenable: GoRouterRefreshStream(getIt<AuthBloc>().stream),
 
-  // Oturum yoksa açılış ekranı. Varsa her rolün TEK ekranı var: işveren
-  // Eşleşen Personeller'e, iş arayan Görüşme Talepleri'ne. Diğer rolün
-  // ekranına gidilemiyor (sunucu da zaten 401 FORBIDDEN_ROLE verirdi).
+  // No session means splash. Otherwise each role has exactly one screen,
+  // and you can't open the other role's screen (the server would return
+  // 401 FORBIDDEN_ROLE anyway).
   redirect: (BuildContext context, GoRouterState state) {
     final role = getIt<AuthBloc>().state.role;
     final target = switch (role) {

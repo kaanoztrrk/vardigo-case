@@ -4,9 +4,9 @@ import { Router } from 'express';
 import { requireRole } from './auth.js';
 import { ApiError, ok } from './http.js';
 
-// Case'de tek iş var (spec: "Garson — Zarif Cheff Restaurant"). Her yeni
-// teklif bu işin bilgilerini kopyalar; teklif, gönderildiği andaki iş
-// bilgisini taşısın.
+// There's only one job in the case ("Garson — Zarif Cheff Restaurant").
+// Each new offer copies these fields so it keeps the job details as they
+// were when it was sent.
 const JOB = {
   title: 'Garson',
   place: 'Zarif Cheff Restaurant',
@@ -17,14 +17,13 @@ const JOB = {
   when: '16 Ağu · 12:00 - 16:00',
 };
 
-// Spec: expiresAt = now + 21 saat 32 dakika.
+// From the spec: expiresAt = now + 21h 32m.
 const OFFER_LIFETIME_MS = (21 * 60 + 32) * 60_000;
 
-// "Detayları Gör" için ek bilgi (spec'teki GET /offers/:id örneği). Case'de
-// tek şehir ve tek şube var.
+// Extra fields for "Detayları Gör" (the GET /offers/:id example in the spec).
 const DETAIL = { city: 'İstanbul', note: 'Şube: Sinanpaşa Mah.' };
 
-// Sekmeler (spec: answered = accepted + rejected).
+// answered = accepted + rejected
 const STATUS_FILTERS = {
   pending: ['pending'],
   answered: ['accepted', 'rejected'],
@@ -34,17 +33,16 @@ const STATUS_FILTERS = {
 const isOverdue = (offer, now) =>
   offer.status === 'pending' && new Date(offer.expiresAt) <= now;
 
-// Süresi geçmiş ama hâlâ "pending" duran teklifleri "expired"a çevirir.
-// Ayrı bir zamanlayıcı yok: durum her okuma/yazmada, o anki saate göre
-// güncelleniyor (spec: "expiresAt geçmişse status otomatik expired").
+// No background timer: overdue offers get flipped to "expired" whenever
+// the data is read or written.
 export function expireOverdue(db, now) {
   for (const offer of db.offers) {
     if (isOverdue(offer, now)) offer.status = 'expired';
   }
 }
 
-// Okuma öncesi: süresi dolan varsa önce onu KALICI olarak işler. Hiçbiri
-// dolmadıysa diske yazmadan okur (her GET'te dosya yazılmasın).
+// Persists any expirations first, but skips the write when nothing
+// expired so plain GETs don't touch the file.
 function readFresh(store, now) {
   const db = store.read();
   if (!db.offers.some((o) => isOverdue(o, now))) return db;
@@ -52,21 +50,19 @@ function readFresh(store, now) {
   return store.read();
 }
 
-// Spec: floor(saat) + " saat " + floor(dakika) + " dakika". Sabit metin
-// değil, her istekte expiresAt'ten hesaplanıyor; istemci listeyi
-// tazeledikçe geri sayım ilerliyor.
+// Computed from expiresAt on every request, so the countdown moves
+// whenever the client refetches.
 function remainText(expiresAt, now) {
   const minutes = Math.max(0, Math.floor((new Date(expiresAt) - now) / 60_000));
   return `${Math.floor(minutes / 60)} saat ${minutes % 60} dakika`;
 }
 
-// "Önerilen" sırası: en yeni teklif üstte. Seed tekliflerinin createdAt'i
-// yok; sort kararlı olduğu için kendi aralarında PNG'deki sırada (Garson,
-// Barista, Komi) ve en altta kalıyorlar.
+// Newest first. Seed offers have no createdAt, so they stay at the bottom
+// in their original order (sort is stable).
 const newestFirst = (a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '');
 
-// API'nin dışarı verdiği biçim. payValue, istemcinin "Ücret"e göre
-// sıralayabilmesi için; remain yalnızca bekleyen teklifte anlamlı.
+// payValue is there so the client can sort by pay. remain only makes
+// sense for pending offers.
 export function toResponse(offer, now) {
   return {
     id: offer.id,
@@ -86,13 +82,10 @@ export function toResponse(offer, now) {
 export function offersRouter(store, now) {
   const router = Router();
 
-  // İşveren seçtiği adaylara görüşme talebi gönderir.
-  //
-  // ATOMİK: bir id bile bilinmiyorsa (404) ya da o adayın açık teklifi
-  // varsa (409) HİÇBİR teklif yazılmaz. Hata store.write'ın içinde
-  // fırlatıldığı için taslak çöpe gidiyor (bkz. createStore). Yarım
-  // yazılmış bir istek, istemcinin "hangileri gitti?" diye tahmin etmesini
-  // gerektirirdi.
+  // All or nothing: if any id is unknown (404) or already has a pending
+  // offer (409), nothing gets written. The error is thrown inside
+  // store.write so the draft is dropped. Otherwise the client would have
+  // to guess which offers went through.
   router.post('/offers', requireRole(store, 'employer'), (req, res) => {
     const workerIds = req.body?.workerIds;
     if (!Array.isArray(workerIds) || workerIds.some((id) => typeof id !== 'string')) {
@@ -101,8 +94,7 @@ export function offersRouter(store, now) {
     if (workerIds.length === 0) {
       throw new ApiError(400, 'EMPTY_SELECTION', 'En az bir aday seçilmeli.');
     }
-    // Aynı id iki kez geldiyse tek teklif: istemcideki çift tıklama hata
-    // sayılmasın.
+    // Dedupe so a double click on the client isn't treated as an error.
     const ids = [...new Set(workerIds)];
 
     const created = store.write((db) => {
@@ -141,10 +133,9 @@ export function offersRouter(store, now) {
     );
   });
 
-  // İş arayanın sekmeleri. Case'de tek demo iş arayan hesabı var ve TÜM
-  // teklifleri görüyor: seed'dekileri de, işverenin adaylara (w_*)
-  // gönderdiklerini de. Böylece "talep gönderince iş arayan listesinde
-  // görünüyor" kriteri tek hesapla gösterilebiliyor.
+  // There's a single demo worker account and it sees every offer, both
+  // the seeded ones and the ones the employer sends. That way one account
+  // is enough to show a sent offer arriving on the worker side.
   router.get('/offers', requireRole(store, 'worker'), (req, res) => {
     const { status } = req.query;
     if (status !== undefined && !STATUS_FILTERS[status]) {
@@ -158,8 +149,8 @@ export function offersRouter(store, now) {
       .sort(newestFirst);
 
     return ok(res, {
-      // "12 talep yanıt bekliyor": seed'de sabit etiket (bkz. candidates'teki
-      // 26 / 16); listedeki gerçek adet daha az.
+      // "12 talep yanıt bekliyor" is a fixed label from the seed, same as
+      // the 26 / 16 on the candidates screen. The real list is shorter.
       pendingCount: db.labels.pendingCountLabel,
       offers: offers.map((o) => toResponse(o, at)),
     });
@@ -174,12 +165,10 @@ export function offersRouter(store, now) {
     return ok(res, { ...toResponse(offer, at), ...DETAIL });
   });
 
-  // İlgileniyorum (accept) / İlgilenmiyorum (reject).
-  //
-  // Süre kontrolü ve yanıt TEK write içinde: arada saat dolarsa yanıt
-  // yine de yazılmasın. Hatalar write'ın DIŞINDA fırlatılıyor, çünkü
-  // içeride fırlatılsaydı "süresi doldu → expired" güncellemesi de çöpe
-  // giderdi (bkz. createStore).
+  // Accept / reject. The expiry check and the answer happen in the same
+  // write, so an offer that expires in between can't be answered.
+  // Errors are thrown after the write on purpose: throwing inside would
+  // also throw away the "expired" update.
   const answer = (nextStatus) => (req, res) => {
     const at = now();
     const { offer, answered } = store.write((db) => {

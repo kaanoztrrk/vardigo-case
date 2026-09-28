@@ -1,12 +1,12 @@
-// Spec'teki cevap zarfı:
-//   başarı { "ok": true,  "data": ... }
-//   hata   { "ok": false, "error": { "code": "...", "message": "..." } }
+// Response envelope from the spec:
+//   success { "ok": true,  "data": ... }
+//   error   { "ok": false, "error": { "code": "...", "message": "..." } }
 
-// Route'ların fırlattığı, kullanıcıya gösterilebilir hata. Express 5
-// async handler'lardaki hataları da errorHandler'a kendisi iletiyor.
+// Errors that are safe to show to the user. Express 5 forwards errors
+// from async handlers to errorHandler on its own.
 //
-// `extra` zarftaki error nesnesine eklenir; örn. POST /offers hangi
-// id'lerin sorunlu olduğunu { ids: [...] } ile bildiriyor.
+// `extra` is merged into the error object, e.g. POST /offers uses it to
+// return the offending ids as { ids: [...] }.
 export class ApiError extends Error {
   constructor(status, code, message, extra = {}) {
     super(message);
@@ -24,19 +24,18 @@ function fail(res, status, code, message, extra = {}) {
   return res.status(status).json({ ok: false, error: { code, message, ...extra } });
 }
 
-// /api altında eşleşmeyen her istek. Express'in varsayılan HTML 404'ü
-// yerine istemci aynı zarfı alsın.
+// Unmatched /api routes get the same envelope instead of Express's HTML 404.
 export function notFound(req, res) {
   return fail(res, 404, 'NOT_FOUND', `Böyle bir uç nokta yok: ${req.method} ${req.path}`);
 }
 
-// Express hata middleware'i 4 parametreyle tanınıyor; next kullanılmasa da
-// imzada kalmalı.
+// Express recognizes error middleware by its 4 args, so `next` has to
+// stay even though it's unused.
 export function errorHandler(err, req, res, next) {
   if (err instanceof ApiError) {
     return fail(res, err.status, err.code, err.message, err.extra);
   }
-  // express.json() bozuk gövdeyi bu tiple fırlatıyor.
+  // Thrown by express.json() on a malformed body.
   if (err.type === 'entity.parse.failed') {
     return fail(res, 400, 'INVALID_JSON', 'İstek gövdesi geçerli bir JSON değil.');
   }

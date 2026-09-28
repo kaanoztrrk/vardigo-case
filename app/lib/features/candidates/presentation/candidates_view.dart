@@ -15,10 +15,10 @@ import '../widget/candidate_tab_bar.dart';
 import '../widget/candidates_header.dart';
 import '../widget/send_offer_footer.dart';
 
-/// Ekran 1 — Eşleşen Personeller (işveren).
+/// Screen 1: Eşleşen Personeller (employer).
 ///
-/// Header, sekmeler ve "N kişi seçildi" satırı sabit; yalnızca kartlar
-/// kayıyor ve referanstaki gibi footer'ın altına giriyor.
+/// Header, tabs and the "N kişi seçildi" row stay fixed. Only the cards
+/// scroll, and they slide under the footer like in the reference.
 class CandidatesView extends StatefulWidget {
   const CandidatesView({super.key});
 
@@ -93,9 +93,9 @@ class _CandidatesViewState extends State<CandidatesView> {
               ),
             ),
             Expanded(
-              // Yükleniyor → liste → (sekme/sıralama değişince) yeni liste
-              // arasında yumuşak geçiş. Anahtar listenin İÇERİĞİ: seçim
-              // değişince (aynı liste) geçiş olmasın.
+              // Cross-fade between loading and lists on tab/sort changes.
+              // Keyed on the list contents so toggling a selection
+              // doesn't trigger it.
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
                 switchInCurve: Curves.easeOutCubic,
@@ -161,7 +161,7 @@ class _List extends StatelessWidget {
     }
 
     return ListView.separated(
-      // Spec "mt 8" diyor; referansta seçim satırı ile ilk kart arası ~16.
+      // Spec says "mt 8", but the reference has ~16 above the first card.
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       itemCount: state.candidates.length,
       separatorBuilder: (_, _) => const SizedBox(height: 10),

@@ -12,24 +12,22 @@ import '../../features/offers/data/repository/offer_repository.dart';
 
 final GetIt getIt = GetIt.instance;
 
-/// Uygulama açılışında main.dart içinde, runApp'ten ÖNCE çağrılmalı.
+/// Call from main.dart before runApp.
 ///
-/// injectable/build_runner KULLANILMIYOR — kayıtlar burada elle yapılıyor.
-/// Bu ölçekte kod üretimi zahmete değmez ve sıralama/gerekçe yorumları
-/// burada okunabilir kalıyor.
+/// Registrations are done by hand rather than with injectable. For an app
+/// this size, code generation isn't worth the setup.
 void setupDependencies() {
   // --- External ---
   getIt.registerLazySingleton<http.Client>(() => http.Client());
 
-  // --- Core servisleri ---
-  // Tek instance: token'ı taşıyor, giriş yapan rolün token'ı tüm
-  // repository'lerde aynı olmalı.
+  // --- Core services ---
+  // Single instance since it holds the token every repository uses.
   getIt.registerLazySingleton<ApiService>(
     () =>
         ApiService(client: getIt<http.Client>(), baseUrl: ApiEndpoint.baseUrl),
   );
 
-  // --- Repository'ler ---
+  // --- Repositories ---
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepository(getIt<ApiService>()),
   );
@@ -40,7 +38,7 @@ void setupDependencies() {
     () => OfferRepository(getIt<ApiService>()),
   );
 
-  // --- Bloc'lar (veri bloc'ları singleton) ---
+  // --- Blocs (singletons, so their data outlives the screen) ---
   getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(getIt<AuthRepository>()),
   );

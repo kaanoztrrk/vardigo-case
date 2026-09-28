@@ -3,7 +3,7 @@ import '../../data/enum/candidate_tab.dart';
 
 abstract class CandidatesEvent {}
 
-/// Listeyi mevcut sekme + sıralamayla (yeniden) yükle — ekran açılışı ve
+/// (Re)load with the current tab and sort. Used on open and by
 /// "Tekrar dene".
 class CandidatesRequested extends CandidatesEvent {}
 
@@ -13,7 +13,7 @@ class CandidatesTabChanged extends CandidatesEvent {
   CandidatesTabChanged(this.tab);
 }
 
-/// Sıralama panelinden bir seçenek seçildi.
+/// An option was picked in the sort sheet.
 class CandidatesSortSelected extends CandidatesEvent {
   final CandidateSort sort;
 
@@ -26,8 +26,8 @@ class CandidateSelectionToggled extends CandidatesEvent {
   CandidateSelectionToggled(this.candidateId);
 }
 
-/// Footer'daki "Görüşme Talebi Gönder (N)": seçili adaylara talep gönder.
+/// "Görüşme Talebi Gönder (N)": send offers to the selected candidates.
 class CandidatesOffersSendRequested extends CandidatesEvent {}
 
-/// Toast gösterildi — tekrar gösterilmesin.
+/// The toast was shown; clear it so it doesn't show again.
 class CandidatesToastShown extends CandidatesEvent {}

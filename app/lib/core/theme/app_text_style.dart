@@ -2,9 +2,9 @@ import 'package:flutter/painting.dart';
 
 import 'app_colors.dart';
 
-/// specs/00-design-tokens.txt → TİPOGRAFİ
-/// Spec satır yüksekliğini px verir; Flutter'da `height` = satır / boyut.
-/// liga ve calt kapalı.
+/// Typography from specs/00-design-tokens.txt.
+/// The spec gives line height in px; Flutter's `height` is line / size.
+/// liga and calt are turned off.
 abstract final class AppTextStyle {
   static const _features = [
     FontFeature.disable('liga'),

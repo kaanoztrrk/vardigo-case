@@ -8,8 +8,8 @@ enum OfferStatus {
 
   final String value;
 
-  /// Bilinmeyen bir değer gelirse `expired`: yanıtlanamayan bir talebe
-  /// buton göstermek, göstermemekten daha kötü.
+  /// Unknown values fall back to `expired`. Showing answer buttons on an
+  /// offer that can't be answered is worse than hiding them.
   static OfferStatus fromValue(String? value) => values.firstWhere(
     (s) => s.value == value,
     orElse: () => OfferStatus.expired,

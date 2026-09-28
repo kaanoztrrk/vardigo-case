@@ -3,19 +3,18 @@ import { Router } from 'express';
 import { requireRole } from './auth.js';
 import { ApiError, ok } from './http.js';
 
-// Brief: "%100 eşleşme = score >= 80". Seed'deki `perfect` alanı yerine
-// kural her istekte score'dan hesaplanıyor: iki kaynak ayrışırsa kazanan
-// kural olsun.
+// "%100 eşleşme" means score >= 80. We compute it from score instead of
+// trusting the seed's `perfect` field, so the rule wins if they disagree.
 const PERFECT_SCORE = 80;
 
-// İlk yüklemede listenin başındaki kaç adayın seçili geleceği
-// (referansta "1 kişi seçildi" ve Merve seçili).
+// How many candidates start out selected (the reference shows Merve
+// selected and "1 kişi seçildi").
 const SELECTED_HINT = 1;
 
 const byScore = (a, b) => b.score - a.score;
 
-// Eşitlikte score azalan: "En Yakın"da Merve ile Ferhat (ikisi de 4.9 km)
-// her istekte aynı sırada gelsin.
+// Ties fall back to score so the order stays stable, e.g. Merve and Ferhat
+// are both 4.9 km away.
 const SORTS = {
   recommended: byScore,
   near: (a, b) => a.kmValue - b.kmValue || byScore(a, b),
@@ -27,8 +26,8 @@ const TABS = {
   similar: (c) => c.score < PERFECT_SCORE,
 };
 
-// API'nin dışarı verdiği biçim. kmValue gibi yalnızca sıralamaya yarayan
-// seed alanları dışarı sızmıyor; foto yolu statik /assets altına çevriliyor.
+// Sort-only fields like kmValue stay internal, and the photo path points
+// at /assets.
 function toResponse(c) {
   return {
     id: c.id,
@@ -61,8 +60,8 @@ export function candidatesRouter(store) {
     const list = candidates.filter(tab ? TABS[tab] : () => true).sort(SORTS[sort]);
 
     return ok(res, {
-      // Header'daki (26) / (16): seed'de sabit etiket. Listedeki gerçek
-      // adet 4 (spec: "case için yeterli").
+      // The (26) / (16) in the header are fixed labels from the seed.
+      // The actual list has 4 candidates, which the spec says is enough.
       totalPerfect: labels.totalPerfect,
       totalSimilar: labels.totalSimilar,
       selectedHint: SELECTED_HINT,

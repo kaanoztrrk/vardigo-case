@@ -3,14 +3,14 @@ import '../../data/enum/candidate_tab.dart';
 import '../../data/models/candidate_model.dart';
 
 class CandidatesState {
-  /// Aktif sekmenin listesi, sunucunun sıraladığı haliyle.
+  /// Active tab's list, in the server's order.
   final List<CandidateModel> candidates;
 
   final CandidateTab tab;
   final CandidateSort sort;
 
-  /// Seçili adaylar. Sekmeler arası ORTAK: sekme değişince seçim
-  /// kaybolmuyor, footer'daki N hepsini sayıyor.
+  /// Selected candidates, shared across tabs. Switching tabs keeps the
+  /// selection, and the N in the footer counts all of them.
   final Set<String> selectedIds;
 
   final int totalPerfect;
@@ -18,22 +18,23 @@ class CandidatesState {
 
   final bool loading;
 
-  /// En az bir kez liste geldi mi. Bloc singleton ve ilk state'i de boş
-  /// liste — `!loading && isEmpty` "henüz yüklenmedi" ile "gerçekten boş"u
-  /// ayıramaz.
+  /// Whether a list has loaded at least once. The initial state is also an
+  /// empty list, so `!loading && isEmpty` can't tell "not loaded yet"
+  /// from "actually empty".
   final bool loaded;
 
-  /// Liste HİÇ gelmediyse: ekranın yerine hata + "Tekrar dene".
+  /// Set when nothing has loaded yet; the screen shows an error and
+  /// "Tekrar dene".
   final String? error;
 
-  /// Talepler gönderiliyor — buton pasif.
+  /// Offers are being sent; the button is disabled.
   final bool sending;
 
-  /// Tek seferlik hata toast'ı: liste varken yenileme ya da gönderim
-  /// başarısız oldu (eski liste kalıyor).
+  /// One-off error toast when a refresh or send fails while a list is
+  /// already showing (the old list stays).
   final String? actionError;
 
-  /// Tek seferlik bilgi toast'ı ("2 kişiye görüşme talebi gönderildi.").
+  /// One-off info toast ("2 kişiye görüşme talebi gönderildi.").
   final String? actionMessage;
 
   const CandidatesState({
@@ -53,7 +54,7 @@ class CandidatesState {
 
   int get selectedCount => selectedIds.length;
 
-  /// Header'daki "N personel bulundu": aktif sekmenin etiketi.
+  /// "N personel bulundu" in the header, taken from the active tab.
   int get activeTotal =>
       tab == CandidateTab.perfect ? totalPerfect : totalSimilar;
 

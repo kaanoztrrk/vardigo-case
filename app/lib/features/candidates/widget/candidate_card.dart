@@ -8,14 +8,14 @@ import '../../../core/widgets/checkbox/app_checkbox.dart';
 import '../../../core/widgets/icon/app_icon.dart';
 import '../data/models/candidate_model.dart';
 
-/// spec 01 → ADAY KARTI. Kartın tamamı seçimi değiştirir.
+/// Candidate card. Tapping anywhere on it toggles selection.
 ///
-/// Seçili halin "inset 4 0 0 #335CFF" gölgesi Flutter'da yok; yerine
-/// kartın içine kırpılmış 4 px'lik bir şerit çiziliyor — köşelerde kartın
-/// radius'unu izliyor.
+/// Flutter can't do the selected state's "inset 4 0 0 #335CFF" shadow, so
+/// a 4 px stripe is drawn instead, clipped to the card so it follows the
+/// rounded corners.
 ///
-/// Seçim geçişi animasyonlu: zemin, border ve gölge [AnimatedContainer]
-/// ile, şerit genişliği 0 → 4 açılarak değişiyor.
+/// Selection is animated: background, border and shadow through
+/// [AnimatedContainer], and the stripe grows from 0 to 4.
 class CandidateCard extends StatelessWidget {
   const CandidateCard({
     super.key,
@@ -33,7 +33,7 @@ class CandidateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AppPressable(
     onTap: onTap,
-    // Geniş yüzey: küçük bir oran bile yeterince görünür.
+    // Wide surface, so a small scale is enough.
     pressedScale: 0.985,
     child: AnimatedContainer(
       duration: _duration,
@@ -42,8 +42,8 @@ class CandidateCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: selected ? AppColors.primaryLighter : AppColors.white,
         borderRadius: BorderRadius.circular(20),
-        // Seçiliyken de 1 px'lik (şeffaf) border duruyor: seçim değişince
-        // içerik 1 px kaymasın.
+        // Keep a 1 px (transparent) border when selected too, so content
+        // doesn't shift by 1 px on toggle.
         border: Border.all(
           color: selected ? const Color(0x00000000) : AppColors.slate200,
         ),
@@ -116,14 +116,14 @@ class _Avatar extends StatelessWidget {
             width: 56,
             height: 56,
             fit: BoxFit.cover,
-            // Foto gelmezse kart bozulmasın: boş gri daire.
+            // Gray circle if the photo fails to load.
             errorBuilder: (_, _, _) =>
                 const ColoredBox(color: AppColors.slate200),
           ),
         ),
-        // Rozet referansta avatarın sağ-altında, çemberin üstüne taşıyor.
-        // online.svg 28 × 28.75 ve gölge payı içeriyor; 24'e ölçekleniyor
-        // (spec: 56 × 0.42).
+        // Badge overlaps the bottom-right of the avatar like in the
+        // reference. online.svg is 28 × 28.75 including its shadow, scaled
+        // to 24 (spec: 56 × 0.42).
         if (online)
           const Positioned(
             left: 37,
@@ -141,9 +141,9 @@ class _MetaRow extends StatelessWidget {
 
   final CandidateModel candidate;
 
-  // Çerçevenin iç ekranı 368 px (referansınki 390): "%100 katılım" +
-  // "4.9 km" ile satır sığan alanın sınırında. Daha uzun bir değer
-  // gelirse taşmak yerine hafifçe küçülsün.
+  // The frame's screen is 368 px wide (390 in the reference), and
+  // "%100 katılım" + "4.9 km" just barely fit. Longer values scale down
+  // a bit instead of overflowing.
   @override
   Widget build(BuildContext context) => FittedBox(
     fit: BoxFit.scaleDown,
@@ -155,7 +155,7 @@ class _MetaRow extends StatelessWidget {
           candidate.rating,
         ),
         const _Divider(),
-        // shield ve pin kendi renkleriyle (yeşil / mor) çiziliyor.
+        // shield and pin keep their own colors (green / purple).
         _item(const AppIcon('shield', size: 16), candidate.attend),
         const _Divider(),
         _item(const AppIcon('pin', size: 14), candidate.km),
@@ -173,8 +173,8 @@ class _MetaRow extends StatelessWidget {
   );
 }
 
-/// Referanstaki 1 px dikey ayırıcı (karar D7). Yan boşluk referansta ~8;
-/// dar ekrana oranlanıp 6.
+/// 1 px vertical divider from the reference. Side spacing is ~8 there,
+/// scaled down to 6 for the narrower screen.
 class _Divider extends StatelessWidget {
   const _Divider();
 
@@ -187,8 +187,8 @@ class _Divider extends StatelessWidget {
   );
 }
 
-/// "Ücret beklentisi uyuşuyor / uyuşmuyor ... ₺25.000 / ay" (karar D1:
-/// spec'te yok, referansta var).
+/// "Ücret beklentisi uyuşuyor / uyuşmuyor ... ₺25.000 / ay". Not in the
+/// spec, but it's in the reference.
 class _PayRow extends StatelessWidget {
   const _PayRow({required this.match, required this.amount});
 

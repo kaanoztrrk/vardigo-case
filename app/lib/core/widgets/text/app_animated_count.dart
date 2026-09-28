@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-/// "[prefix][count][suffix]" — yalnızca SAYI değişince kayarak yenilenir,
-/// çevresindeki metin yerinde kalıyor ("1 kişi seçildi" → "2 kişi seçildi").
-/// Artışta yeni sayı aşağıdan, azalışta yukarıdan geliyor.
+/// "[prefix][count][suffix]" where only the number animates and the text
+/// around it stays put ("1 kişi seçildi" → "2 kişi seçildi"). The new
+/// number slides in from below when counting up and from above when down.
 class AppAnimatedCount extends StatefulWidget {
   const AppAnimatedCount({
     super.key,

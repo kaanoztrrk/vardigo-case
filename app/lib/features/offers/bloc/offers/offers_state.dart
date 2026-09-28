@@ -4,31 +4,32 @@ import '../../data/models/offer_detail_model.dart';
 import '../../data/models/offer_model.dart';
 
 class OffersState {
-  /// Aktif sekmenin listesi, SUNUCUNUN sırasıyla (en yeni üstte).
-  /// Ekran [visibleOffers]'ı çiziyor.
+  /// Active tab's list in server order (newest first). The screen renders
+  /// [visibleOffers].
   final List<OfferModel> offers;
 
   final OfferTab tab;
   final OfferSort sort;
 
-  /// "N talep yanıt bekliyor" etiketi.
+  /// The "N talep yanıt bekliyor" label.
   final int pendingCount;
 
-  /// Detayı açık kartlar.
+  /// Cards with their detail expanded.
   final Set<String> expandedIds;
 
-  /// GET /offers/:id sonuçları — bir kez çekilen detay tekrar çekilmiyor.
+  /// Cached GET /offers/:id results so each detail is fetched once.
   final Map<String, OfferDetailModel> details;
 
   final bool loading;
 
-  /// En az bir kez liste geldi mi (CandidatesState'teki aynı gerekçe).
+  /// Whether a list has loaded at least once (see CandidatesState.loaded).
   final bool loaded;
 
-  /// Liste HİÇ gelmediyse: ekranın yerine hata + "Tekrar dene".
+  /// Set when nothing has loaded yet; the screen shows an error and
+  /// "Tekrar dene".
   final String? error;
 
-  /// Tek seferlik hata toast'ı.
+  /// One-off error toast.
   final String? actionError;
 
   const OffersState({
@@ -44,8 +45,8 @@ class OffersState {
     this.actionError,
   });
 
-  /// Sıralama istemcide (karar B10). Eşitlikte sunucunun sırası korunuyor
-  /// (List.sort kararlı değil, o yüzden index ile).
+  /// Sorted on the client. Ties keep the server order; List.sort isn't
+  /// stable, hence the index.
   List<OfferModel> get visibleOffers {
     if (sort == OfferSort.recommended) return offers;
     final indexed = offers.indexed.toList();
@@ -60,7 +61,7 @@ class OffersState {
     return indexed.map((e) => e.$2).toList();
   }
 
-  /// Header'daki alt başlık (spec 02).
+  /// Header subtitle.
   String get subtitle => switch (tab) {
     OfferTab.pending => '$pendingCount talep yanıt bekliyor',
     OfferTab.answered => 'Cevaplanan talepler',

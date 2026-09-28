@@ -1,8 +1,8 @@
 import 'package:flutter/painting.dart';
 
-/// specs/00-design-tokens.txt → GÖLGELER ve ORTAK KONTROLLER.
-/// "kart seçili" için inset gölge Flutter'da yok; sol şerit kart
-/// widget'ında ayrıca çizilecek, burada yalnızca dış gölge var.
+/// Shadows from specs/00-design-tokens.txt.
+/// Flutter has no inset shadow, so the selected card's left stripe is
+/// drawn in the card widget; only the outer shadow lives here.
 abstract final class AppShadows {
   static const card = [
     BoxShadow(offset: Offset(0, 2), blurRadius: 4, color: Color(0x0A243D82)),

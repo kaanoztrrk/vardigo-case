@@ -9,11 +9,10 @@ import 'di/injection.dart';
 import 'router/app_router.dart';
 import 'router/route.dart';
 
-/// Uygulamanın kökü.
+/// Root widget.
 ///
-/// Tek, sabit bir light tema var: hedef referans PNG'ye piksel yakınlığı,
-/// o yüzden widget'lar renkleri Theme üzerinden değil DOĞRUDAN
-/// [AppColors]'tan okuyor.
+/// There's one fixed light theme since the goal is matching the reference
+/// PNG, so widgets read colors straight from [AppColors] instead of Theme.
 class VardigoApp extends StatelessWidget {
   const VardigoApp({super.key});
 
@@ -26,18 +25,17 @@ class VardigoApp extends StatelessWidget {
       scaffoldBackgroundColor: AppColors.slate100,
     ),
     routerConfig: router,
-    // Fareyle sürükleyerek kaydırma (bkz. AppScrollBehavior).
+    // Lets you scroll by dragging with the mouse.
     scrollBehavior: const AppScrollBehavior(),
-    // Telefon çerçevesi `builder`'da: Navigator'ın ÜSTÜNDE, böylece
-    // snackbar / diyalog gibi Navigator üzerinden açılan her şey de
-    // çerçevenin İÇİNDE kalıyor.
+    // The phone frame wraps the Navigator here, so snackbars and dialogs
+    // open inside the frame too.
     //
-    // Material: çerçeve Navigator'ın dışında kaldığı için status bar'daki
-    // saat bir Material'ın altında değil — yoksa metin varsayılan sarı
-    // alt çizgiyle çiziliyor.
+    // The frame sits outside the Navigator, so the status bar clock has no
+    // Material ancestor and would render with the yellow debug underline.
+    // Hence the Material.
     //
-    // Rol anahtarı çerçevenin ÜSTÜNDE, sayfa zemininde: uygulamanın değil
-    // demonun kontrolü (bkz. RoleSwitch).
+    // The role switch lives above the phone because it's a demo control,
+    // not part of the app (see RoleSwitch).
     builder: (context, child) => Material(
       color: AppColors.slate100,
       child: Padding(
@@ -46,7 +44,7 @@ class VardigoApp extends StatelessWidget {
           children: [
             RoleSwitch(bloc: getIt<AuthBloc>()),
             const SizedBox(height: 20),
-            // Tarayıcı penceresi kısaysa telefon orantılı küçülür.
+            // Scales the phone down when the browser window is short.
             Expanded(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
@@ -60,12 +58,12 @@ class VardigoApp extends StatelessWidget {
   );
 }
 
-/// Telefon çerçevesi + aktif route'a göre home indicator.
+/// Phone frame that hides the home indicator on the offers screen.
 ///
-/// Referans 2'de home indicator yok ve kartlar alt bezel'e kadar iniyor
-/// (spec 02: "home bar zorunlu değil"). Çerçeve route ağacının dışında,
-/// o yüzden aktif route'u router'dan okuyor. Router build SIRASINDA da
-/// haber verebildiği için güncelleme bir sonraki kareye erteleniyor.
+/// Reference 2 has no home indicator and the cards run down to the bezel.
+/// The frame is outside the route tree, so it listens to the router
+/// directly. The router can notify mid-build, which is why the update
+/// waits for the next frame.
 class _Frame extends StatefulWidget {
   const _Frame({required this.child});
 

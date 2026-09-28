@@ -10,11 +10,11 @@ import '../data/enum/offer_status.dart';
 import '../data/models/offer_detail_model.dart';
 import '../data/models/offer_model.dart';
 
-/// spec 02 → TALEP KARTI.
+/// Offer card.
 ///
-/// Yanıt butonları ve geri sayım yalnızca BEKLEYEN talepte; cevaplanan ve
-/// süresi dolan talepte onların yerine durum satırı var (spec bu iki
-/// sekmenin kartını tanımlamıyor).
+/// Answer buttons and the countdown only show on pending offers. Answered
+/// and expired ones get a status line instead, since the spec doesn't
+/// define cards for those tabs.
 class OfferCard extends StatelessWidget {
   const OfferCard({
     super.key,
@@ -29,11 +29,11 @@ class OfferCard extends StatelessWidget {
 
   final OfferModel offer;
 
-  /// Geri sayımın rengi için (bkz. OfferModel.isUrgent).
+  /// Used for the countdown color (see OfferModel.isUrgent).
   final DateTime now;
   final bool expanded;
 
-  /// null ve [expanded] ise detay henüz yükleniyor.
+  /// Null while [expanded] means the detail is still loading.
   final OfferDetailModel? detail;
   final VoidCallback onAccept;
   final VoidCallback onReject;
@@ -78,8 +78,8 @@ class OfferCard extends StatelessWidget {
           ],
           const SizedBox(height: 12),
           _DetailButton(expanded: expanded, onTap: onToggleDetail),
-          // Detay yumuşakça açılıp kapanıyor; yüklenirken → içerik geçişi
-          // de solarak.
+          // Detail expands and collapses smoothly, and fades from the
+          // loading state to the content.
           AnimatedSize(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeOutCubic,
@@ -98,7 +98,7 @@ class OfferCard extends StatelessWidget {
   }
 }
 
-/// Logo | ünvan + ücret / işletme / konum · saat
+/// Logo | title + pay / business / location · time
 class _Summary extends StatelessWidget {
   const _Summary({required this.offer});
 
@@ -117,8 +117,8 @@ class _Summary extends StatelessWidget {
             dimension: 56,
             child: ColoredBox(color: AppColors.slate200),
           ),
-          // Logo gelmezse (sunucu kapalı, 404) kart bozulmasın: aynı gri
-          // daire. Yoksa hata yakalanmadan fırlıyor.
+          // Gray circle if the logo fails (server down, 404). Without
+          // this the error goes uncaught.
           errorBuilder: (_, _, _) => const SizedBox.square(
             dimension: 56,
             child: ColoredBox(color: AppColors.slate200),
@@ -161,7 +161,7 @@ class _Summary extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   color: AppColors.slate200,
                 ),
-                // date çok renkli (mavi daire + beyaz akrep), boyanmıyor.
+                // date is multi-color (blue circle, white hand), no tint.
                 Flexible(
                   child: _meta(const AppIcon('date', size: 16), offer.when),
                 ),
@@ -262,8 +262,8 @@ class _DetailButton extends StatelessWidget {
   );
 }
 
-/// Spec 02: "kartın altına 2 satırlık düz metin yeter: konum + ücret +
-/// saat tekrarı" (karar B11 — ayrı sayfa yok).
+/// The spec says two lines of plain text under the card are enough
+/// (location, pay, time), so there's no separate detail page.
 class _Detail extends StatelessWidget {
   const _Detail({required this.offer, required this.detail});
 
@@ -301,8 +301,8 @@ class _Detail extends StatelessWidget {
   }
 }
 
-/// "Teklifin sonlanmasına **21 saat 32 dakika** kaldı." — 6 saatten az
-/// kaldıysa ikon ve kalın kısım kırmızı (karar D6).
+/// "Teklifin sonlanmasına **21 saat 32 dakika** kaldı." The icon and bold
+/// part turn red under 6 hours.
 class _Countdown extends StatelessWidget {
   const _Countdown({required this.offer, required this.urgent});
 
@@ -315,7 +315,7 @@ class _Countdown extends StatelessWidget {
     return Row(
       spacing: 4,
       children: [
-        // alarm.svg kendi rengiyle turuncu; acilse kırmızıya boyanıyor.
+        // alarm.svg is orange by default and gets tinted red when urgent.
         AppIcon('alarm', size: 16, color: urgent ? AppColors.error : null),
         Expanded(
           child: Text.rich(
@@ -340,7 +340,7 @@ class _Countdown extends StatelessWidget {
   }
 }
 
-/// Cevaplanan / süresi dolan talepte butonların ve geri sayımın yerine.
+/// Replaces the buttons and countdown on answered / expired offers.
 class _StatusLine extends StatelessWidget {
   const _StatusLine({required this.status});
 

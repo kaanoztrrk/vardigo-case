@@ -1,13 +1,12 @@
-/// Sunucu adresi ve uç nokta yolları — tek merkez.
+/// Server address and endpoint paths.
 ///
-/// Yollar server/src altındaki router'larla BİREBİR aynı olmak zorunda;
-/// değişiklik iki tarafta birlikte yapılmalı.
+/// These have to match the routers in server/src, so change both together.
 class ApiEndpoint {
   ApiEndpoint._();
 
-  /// Sunucunun kök adresi. Varsayılan geliştirme sunucusu (`npm run dev`).
+  /// Defaults to the local dev server (`npm run dev`).
   ///
-  /// Derlemede değiştirilebilir:
+  /// Override at build time:
   /// `flutter run --dart-define=API_BASE_URL=http://192.168.1.20:3000`
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',

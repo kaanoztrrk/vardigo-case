@@ -9,11 +9,11 @@ import { devRouter } from './dev.js';
 import { errorHandler, notFound } from './http.js';
 import { offersRouter } from './offers.js';
 
-// `now` testlerde sabit bir saat vermek için; teklif süreleri ona göre.
+// `now` lets tests pin the clock for offer expiry.
 //
-// `webDir` verilirse hazır Flutter web build'i de buradan sunuluyor
-// (`npm start` tek komut: API + uygulama aynı adreste; bkz. index.js).
-// Testler vermiyor; o zaman yalnızca API.
+// When `webDir` is set, the prebuilt Flutter web app is served too, so
+// `npm start` gives you the API and the app on one port. Tests leave it
+// out and only get the API.
 export function createApp({ store, now = () => new Date(), webDir }) {
   const app = express();
 
@@ -23,12 +23,12 @@ export function createApp({ store, now = () => new Date(), webDir }) {
     next();
   });
 
-  // Spec: "CORS açık (localhost)". Flutter web dev sunucusu farklı portta çalışır.
+  // The Flutter dev server runs on a different port.
   app.use(cors());
   app.use(express.json());
 
-  // Aday fotoğrafları ve firma logoları. /api dışında ve token'sız: istemci
-  // bunları <img> / Image.network ile, header ekleyemeden çekiyor.
+  // Candidate photos and company logos. Kept outside /api and public,
+  // since Image.network can't send an auth header.
   app.use('/assets', express.static(fileURLToPath(new URL('../assets', import.meta.url))));
 
   const api = express.Router();
@@ -43,10 +43,9 @@ export function createApp({ store, now = () => new Date(), webDir }) {
 
   if (webDir) {
     app.use(express.static(webDir));
-    // Uygulamanın kendi sayfaları (/candidates, /offers): sayfa
-    // yenilenince sunucuda böyle bir dosya yok, index.html dönüyor ve
-    // yönlendirmeyi uygulamanın router'ı yapıyor. /api ve /assets altında
-    // bulunamayan istekler 404 kalmalı — eksik bir görsele sayfa dönmesin.
+    // SPA fallback: refreshing on /candidates or /offers should load
+    // index.html and let the app's router take over. Misses under /api
+    // and /assets stay 404 so a broken image doesn't get an HTML page.
     const index = path.join(webDir, 'index.html');
     app.use((req, res, next) => {
       const own = req.path.startsWith('/api/') || req.path.startsWith('/assets/');

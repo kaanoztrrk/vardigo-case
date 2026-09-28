@@ -2,14 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-/// Telefon çerçevesinin içindeki listeler telefondaki gibi kaysın.
+/// Makes lists inside the phone frame scroll like on a phone.
 ///
-/// Flutter web masaüstünde varsayılan olarak yalnızca tekerlek / touchpad
-/// ile kaydırıyor; fareyle tutup çekmek hiçbir şey yapmıyor. Ekran bir
-/// telefon taklidi olduğu için kullanıcı listeyi doğal olarak fareyle
-/// yukarı çekiyor — o yüzden fare de sürükleme cihazı sayılıyor.
+/// On desktop web, Flutter only scrolls with the wheel or touchpad by
+/// default, and dragging with the mouse does nothing. Since this is a
+/// phone mockup, people naturally try to drag, so the mouse counts as a
+/// drag device here.
 ///
-/// Masaüstüne özgü kaydırma çubuğu da çizilmiyor: telefonda yok.
+/// The desktop scrollbar is hidden too, since phones don't have one.
 class AppScrollBehavior extends MaterialScrollBehavior {
   const AppScrollBehavior();
 

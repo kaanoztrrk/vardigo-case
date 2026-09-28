@@ -5,14 +5,13 @@ import '../../theme/app_text_style.dart';
 import '../button/app_pressable.dart';
 import '../icon/app_icon.dart';
 
-/// Sort chip'ten açılan alt panel: seçenekler, seçilinin yanında tik.
-/// Seçilen değeri döner; dışarı dokunulup kapatılırsa null.
+/// Bottom sheet opened from the sort chip, with a tick next to the current
+/// option. Returns the picked value, or null if dismissed.
 ///
-/// Spec 01 chip'e her basışta sıradaki sıralamaya geçen bir DÖNGÜ
-/// tanımlıyor; kullanıcı üç seçeneği görüp doğrudan seçebilsin diye
-/// bilerek panele çevrildi (bkz. README → Bilinçli kararlar). Panel Navigator
-/// üzerinden açıldığı için telefon çerçevesinin İÇİNDE kalıyor
-/// (bkz. app.dart → builder).
+/// Spec 01 has the chip cycle to the next sort on every tap. I went with a
+/// sheet instead so all three options are visible and you can pick one
+/// directly (see README → Bilinçli kararlar). It opens through the
+/// Navigator, so it stays inside the phone frame (see app.dart).
 Future<T?> showAppSortSheet<T>({
   required BuildContext context,
   required List<(T value, String label)> options,
@@ -21,7 +20,7 @@ Future<T?> showAppSortSheet<T>({
   return showModalBottomSheet<T>(
     context: context,
     backgroundColor: AppColors.white,
-    // Liste arkada görünür kalsın: yalnızca hafif bir karartma.
+    // Light scrim so the list stays visible behind it.
     barrierColor: const Color(0x33171717),
     elevation: 0,
     shape: const RoundedRectangleBorder(

@@ -54,7 +54,7 @@ test('sort: recommended (varsayılan) / near / rating, eşitlikte score', async 
   const recommended = ['w_merve', 'w_ferhat', 'w_derya', 'w_ayse'];
   assert.deepEqual(ids(await get()), recommended);
   assert.deepEqual(ids(await get('?sort=recommended')), recommended);
-  // Merve ile Ferhat ikisi de 4.9 km ve 4.9 puan: score (92 > 88) ayırıyor.
+  // Merve and Ferhat are both 4.9 km and 4.9 rating; score (92 > 88) breaks the tie.
   assert.deepEqual(ids(await get('?sort=near')), ['w_ayse', 'w_derya', 'w_merve', 'w_ferhat']);
   assert.deepEqual(ids(await get('?sort=rating')), ['w_merve', 'w_ferhat', 'w_derya', 'w_ayse']);
 });

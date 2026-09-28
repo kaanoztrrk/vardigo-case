@@ -1,24 +1,23 @@
-// Flutter web build'ini alıp server/public'e koyar: `npm start` onu API
-// ile aynı adresten sunuyor (bkz. src/index.js). Yalnızca uygulama
-// değiştiğinde çalıştırılır; çıktı repoya commit'leniyor ki değerlendirici
-// Flutter kurmadan açabilsin.
+// Builds the Flutter web app into server/public, which `npm start` serves
+// next to the API (see src/index.js). Only needed when the app changes.
+// The output is committed so reviewers don't need Flutter installed.
 //
-//   npm run build:web      (Flutter SDK gerekir)
+//   npm run build:web      (requires the Flutter SDK)
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const appDir = fileURLToPath(new URL('../../app', import.meta.url));
-// --output mutlak yol istiyor.
+// --output wants an absolute path.
 const outDir = fileURLToPath(new URL('../public', import.meta.url));
 
-// Windows'ta flutter bir .bat dosyası; shell olmadan bulunamıyor. Shell
-// ile argüman dizisi verilmesi Node'da kullanımdan kalkıyor, o yüzden tek
-// komut satırı (yol tırnaklı: boşluk içerebilir).
+// On Windows flutter is a .bat file and can't be found without a shell.
+// Passing an args array together with shell: true is deprecated in Node,
+// so it's a single command string (path quoted in case of spaces).
 const command = [
   'flutter build web --release',
-  // Boş adres: uygulama API'ye kendi sunulduğu adresten (/api) gider.
+  // Empty base URL: the app calls /api on the same origin it's served from.
   '--dart-define=API_BASE_URL=',
   `--output "${outDir}"`,
 ].join(' ');
@@ -26,8 +25,8 @@ const command = [
 const result = spawnSync(command, { cwd: appDir, stdio: 'inherit', shell: true });
 if (result.status !== 0) process.exit(result.status ?? 1);
 
-// CanvasKit tarayıcıya Google CDN'inden (gstatic) geliyor; yerel kopyası
-// (~32 MB) sunulmuyor, repoya da girmesin.
+// CanvasKit loads from Google's CDN (gstatic), so the local ~32 MB copy
+// isn't needed and shouldn't end up in the repo.
 fs.rmSync(new URL('../public/canvaskit', import.meta.url), {
   recursive: true,
   force: true,

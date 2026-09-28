@@ -2,8 +2,8 @@ import '../../../../core/services/api_service.dart';
 import '../../../../core/constants/api_endpoint.dart';
 import '../enum/user_role.dart';
 
-/// Case'de SMS / şifre yok: rol seçmek giriş yapmak demek
-/// (bkz. server/src/auth.js).
+/// No SMS or password in this case; picking a role is the login
+/// (see server/src/auth.js).
 class AuthRepository {
   final ApiService _api;
 
@@ -11,8 +11,8 @@ class AuthRepository {
 
   static const String _tag = 'AuthRepo';
 
-  /// Rolün token'ını alır ve [ApiService]'e verir — sonraki TÜM istekler
-  /// bu rolle gidiyor. Hata olursa [Failure] fırlatır (ApiService'ten).
+  /// Gets the role's token and hands it to [ApiService], so every request
+  /// after this goes out as that role. Throws a [Failure] on error.
   Future<void> login(UserRole role) async {
     final data = await _api.post(
       ApiEndpoint.login,

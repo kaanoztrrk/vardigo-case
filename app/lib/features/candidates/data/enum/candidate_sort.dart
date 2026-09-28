@@ -1,5 +1,5 @@
-/// Ekran 1'in sıralamaları, paneldeki sırasıyla. Sıralamayı sunucu
-/// yapıyor. (Spec 01 chip'e basınca döngü diyor; panele çevrildi — bkz.
+/// Sort options for screen 1, in sheet order. The server does the sorting.
+/// (Spec 01 cycles on tap; this uses a sheet instead, see
 /// showAppSortSheet.)
 enum CandidateSort {
   recommended('recommended', 'Önerilen'),

@@ -1,5 +1,5 @@
-/// Ekranın iki sekmesi. Ayrımı sunucu yapıyor: score >= 80 → perfect
-/// (bkz. server/src/candidates.js).
+/// The two tabs. The server does the split: score >= 80 is perfect
+/// (see server/src/candidates.js).
 enum CandidateTab {
   perfect('perfect'),
   similar('similar');

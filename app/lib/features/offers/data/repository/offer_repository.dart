@@ -5,8 +5,8 @@ import '../models/offer_detail_model.dart';
 import '../models/offer_list_model.dart';
 import '../models/offer_model.dart';
 
-/// Görüşme talepleri (offers): işveren gönderiyor, iş arayan listeliyor ve
-/// yanıtlıyor. Tüm metotlar hata olursa [Failure] fırlatır (ApiService'ten).
+/// Offers: the employer sends them, the worker lists and answers them.
+/// Every method throws a [Failure] on error.
 class OfferRepository {
   final ApiService _api;
 
@@ -14,8 +14,9 @@ class OfferRepository {
 
   static const String _tag = 'OfferRepo';
 
-  /// Seçili adaylara talep gönderir. Sunucu ATOMİK: bir aday bile
-  /// çakışırsa (409 OFFER_EXISTS, `ids` = çakışanlar) hiçbiri yazılmaz.
+  /// Sends offers to the selected candidates. All or nothing: if any of
+  /// them conflicts (409 OFFER_EXISTS, with the conflicting `ids`), none
+  /// are saved.
   Future<void> sendOffers(List<String> workerIds) async {
     await _api.post(
       ApiEndpoint.offers,
@@ -24,7 +25,7 @@ class OfferRepository {
     );
   }
 
-  /// İş arayanın sekmesi. Sıra sunucunun: en yeni üstte.
+  /// One of the worker's tabs, newest first (server order).
   Future<OfferListModel> fetchOffers(OfferTab tab) async {
     final data =
         await _api.get(
@@ -52,12 +53,12 @@ class OfferRepository {
     return OfferDetailModel.fromMap(data as Map<String, dynamic>);
   }
 
-  /// İlgileniyorum. Bekleyen değilse 409 (OFFER_STATE / OFFER_EXPIRED).
+  /// İlgileniyorum. 409 if not pending (OFFER_STATE / OFFER_EXPIRED).
   Future<void> accept(String id) async {
     await _api.post(ApiEndpoint.acceptOffer(id), tag: _tag);
   }
 
-  /// İlgilenmiyorum. Bekleyen değilse 409 (OFFER_STATE / OFFER_EXPIRED).
+  /// İlgilenmiyorum. 409 if not pending (OFFER_STATE / OFFER_EXPIRED).
   Future<void> reject(String id) async {
     await _api.post(ApiEndpoint.rejectOffer(id), tag: _tag);
   }

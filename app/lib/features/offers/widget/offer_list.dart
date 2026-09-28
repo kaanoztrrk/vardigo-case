@@ -3,17 +3,17 @@ import 'package:flutter/widgets.dart';
 
 import '../data/models/offer_model.dart';
 
-/// Talep listesi — kart çıkınca / geri gelince animasyonlu.
+/// Offer list that animates cards leaving and coming back.
 ///
-/// Bloc listeyi tek seferde değiştiriyor (iyimser yanıtta kart düşüyor,
-/// hata olursa geri konuyor). Bu widget eski ve yeni listeyi id'ye göre
-/// karşılaştırıp farkı [SliverAnimatedList]'e çeviriyor: çıkan kart
-/// solup sağa kayarak küçülüyor, alttakiler yukarı kayıyor; gelen kart
-/// tersine açılıyor.
+/// The bloc swaps the whole list at once (a card drops out on an
+/// optimistic answer and comes back if the request fails). This widget
+/// diffs old and new lists by id and replays the difference on a
+/// [SliverAnimatedList]: a removed card fades, slides right and
+/// collapses while the ones below move up; an inserted card does the
+/// reverse.
 ///
-/// Sekme / sıralama değişiminde çağıran taraf bu widget'ı YENİ bir
-/// anahtarla kuruyor (tüm liste yumuşak geçişle yenileniyor); burada
-/// yalnızca aynı sekmedeki ekleme / çıkarma animasyonlu.
+/// On tab or sort changes the parent rebuilds this with a new key, so only
+/// adds and removes within the same tab are animated here.
 class OfferList extends StatefulWidget {
   const OfferList({
     super.key,
@@ -26,10 +26,10 @@ class OfferList extends StatefulWidget {
 
   final List<OfferModel> offers;
 
-  /// Listenin üstünde kayan satır (sort chip).
+  /// Scrolling row above the list (the sort chip).
   final Widget header;
 
-  /// Liste boşken (son kart da çıkınca) solarak beliren içerik.
+  /// Fades in when the list is empty, including after the last card leaves.
   final Widget empty;
   final Widget Function(OfferModel offer) itemBuilder;
   final EdgeInsets padding;
@@ -41,11 +41,11 @@ class OfferList extends StatefulWidget {
 class _OfferListState extends State<OfferList> {
   static const _duration = Duration(milliseconds: 380);
 
-  /// Animasyon komutları (removeItem / insertItem) bu anahtarla veriliyor.
+  /// Used to call removeItem / insertItem.
   GlobalKey<SliverAnimatedListState> _listKey = GlobalKey();
 
-  /// SliverAnimatedList'in o an bildiği sıra. Animasyon komutları bu
-  /// listeye göre verilmek zorunda.
+  /// What SliverAnimatedList currently thinks the items are. Indexes for
+  /// removeItem / insertItem have to match this.
   late List<OfferModel> _items = [...widget.offers];
 
   @override
@@ -54,7 +54,7 @@ class _OfferListState extends State<OfferList> {
     final next = widget.offers;
     final nextIds = next.map((o) => o.id).toSet();
 
-    // 1) Çıkanlar — sondan başa, indeksler kaymasın.
+    // 1) Removals, back to front so indexes don't shift.
     for (var i = _items.length - 1; i >= 0; i--) {
       if (nextIds.contains(_items[i].id)) continue;
       final removed = _items.removeAt(i);
@@ -65,30 +65,31 @@ class _OfferListState extends State<OfferList> {
       );
     }
 
-    // 2) Kalanların sırası aynı mı?
+    // 2) Are the remaining items still in the same order?
     final keptIds = _items.map((o) => o.id).toList();
     final keptInNext = next.map((o) => o.id).where(keptIds.contains).toList();
     if (!listEquals(keptIds, keptInNext)) {
-      // Kalan kartların sırası değişmiş (ör. sunucu yeni sırayla döndü):
-      // ekle/çıkar ile ifade edilemez, liste animasyonsuz yeniden kuruluyor.
+      // Order changed (e.g. the server returned a new order). That can't
+      // be expressed as inserts/removes, so rebuild without animation.
       _items = [...next];
       _listKey = GlobalKey();
       return;
     }
 
-    // 3) Gelenler — yeni listedeki yerlerine.
+    // 3) Inserts, at their position in the new list.
     for (var i = 0; i < next.length; i++) {
       if (i < _items.length && _items[i].id == next[i].id) continue;
       _items.insert(i, next[i]);
       _listKey.currentState?.insertItem(i, duration: _duration);
     }
 
-    // Ortak kartların GÜNCEL verisi (ör. 60 sn tazelemede geri sayım).
+    // Pick up fresh data for cards that stayed (e.g. the countdown after
+    // the 60s refresh).
     _items = [...next];
   }
 
-  /// Çıkışta animasyon 1 → 0 gidiyor: önce solup sağa kayıyor, sonra
-  /// yüksekliği kapanıyor. Girişte tersi.
+  /// On removal the animation runs 1 → 0: fade and slide right first, then
+  /// collapse the height. Insertion is the reverse.
   Widget _transition(OfferModel offer, Animation<double> animation) {
     final fade = CurvedAnimation(
       parent: animation,
@@ -128,7 +129,7 @@ class _OfferListState extends State<OfferList> {
               itemBuilder: (context, i, animation) =>
                   _transition(_items[i], animation),
             ),
-            // Son kart da çıkınca boş state solarak beliriyor.
+            // Empty state fades in once the last card is gone.
             SliverToBoxAdapter(
               child: AnimatedSwitcher(
                 duration: _duration,

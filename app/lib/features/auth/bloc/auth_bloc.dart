@@ -5,8 +5,8 @@ import '../data/repository/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
-/// Oturum. Singleton (bkz. injection.dart): router redirect'i bunu
-/// dinliyor.
+/// Session state. A singleton (see injection.dart) because the router's
+/// redirect listens to it.
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _repository;
 
@@ -18,8 +18,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthRoleSelected event,
     Emitter<AuthState> emit,
   ) async {
-    // Önce eski rol düşürülüyor: yeni token gelene kadar ekran eski rolün
-    // verisiyle istek atmasın.
+    // Drop the old role first so the screen doesn't fire requests as the
+    // old role before the new token arrives.
     emit(
       state.copyWith(
         requestedRole: event.role,

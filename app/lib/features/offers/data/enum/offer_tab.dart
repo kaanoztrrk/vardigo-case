@@ -1,5 +1,5 @@
-/// Ekran 2'nin üç sekmesi (spec 02 → SEKME İÇERİĞİ). Süzmeyi sunucu
-/// yapıyor; answered = accepted + rejected.
+/// The three tabs on screen 2. The server does the filtering;
+/// answered = accepted + rejected.
 enum OfferTab {
   pending('pending', 'Bekleyen', 'Bekleyen talep yok'),
   answered(

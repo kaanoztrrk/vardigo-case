@@ -4,22 +4,20 @@ import 'package:flutter/foundation.dart';
 
 enum LogLevel { debug, info, warning, error }
 
-/// Terminalde renkli, etiketli log çıktısı üreten merkezi logger.
+/// Colored, tagged console logging.
 ///
-/// Kullanım:
 /// ```dart
-/// AppLogger.debug(tag: 'Auth', message: 'Kullanıcı kaydı başlatıldı');
-/// AppLogger.error(tag: 'Auth', message: 'Giriş başarısız', error: e, stackTrace: st);
+/// AppLogger.debug(tag: 'Auth', message: 'Login started');
+/// AppLogger.error(tag: 'Auth', message: 'Login failed', error: e, stackTrace: st);
 /// ```
 ///
-/// Etiket (tag), hatanın hangi katmandan/feature'dan geldiğini hızlıca
-/// ayırt etmek için kullanılıyor — örn. 'Api', 'Candidates', 'Offers'.
+/// The tag tells you where a log came from, e.g. 'Api', 'Candidates',
+/// 'Offers'.
 class AppLogger {
   AppLogger._();
 
-  // ANSI renk kodları — terminal/IDE console'da çalışır. Bazı IDE
-  // konsolları ANSI'yi desteklemeyebilir, o durumda kod olduğu gibi
-  // (renksiz) görünür, işlevi bozmaz.
+  // ANSI colors. Consoles that don't support them just print the codes,
+  // which is harmless.
   static const String _reset = '\x1B[0m';
   static const String _grey = '\x1B[90m';
   static const String _cyan = '\x1B[36m';
@@ -55,8 +53,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    // Release build'de debug/info/warning seviyeleri boğuluyor, sadece
-    // error her zaman loglanır.
+    // Release builds only log errors.
     if (!kDebugMode && level != LogLevel.error) return;
 
     final color = _colorFor(level);
@@ -73,9 +70,8 @@ class AppLogger {
     // ignore: avoid_print
     print(buffer.toString());
 
-    // dart:developer.log DevTools'ta yapılandırılmış/filtrelenebilir log
-    // görünümü sağlıyor, ayrıca error/stackTrace alanlarını native olarak
-    // taşıyor.
+    // Also send it to DevTools, where logs can be filtered and the
+    // error/stackTrace are kept as structured fields.
     developer.log(
       message,
       name: tag,
@@ -111,8 +107,7 @@ class AppLogger {
     }
   }
 
-  // dart:developer.log'un level parametresi int bekliyor (0-2000 arası,
-  // yüksek değer = daha ciddi).
+  // developer.log takes an int level (0-2000, higher is more severe).
   static int _severityFor(LogLevel level) {
     switch (level) {
       case LogLevel.debug:

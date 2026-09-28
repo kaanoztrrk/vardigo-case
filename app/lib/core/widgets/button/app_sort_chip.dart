@@ -6,10 +6,9 @@ import '../../theme/app_text_style.dart';
 import '../icon/app_icon.dart';
 import 'app_pressable.dart';
 
-/// specs/00-design-tokens.txt → ORTAK KONTROLLER → Sort chip.
-/// "Sırala: [label]" — dokununca ne açılacağını çağıran ekran yönetiyor
-/// (bkz. showAppSortSheet). Etiket değişince chip'in genişliği ve yazı
-/// yumuşakça geçiyor.
+/// "Sırala: [label]" chip from the design tokens. The screen decides what
+/// a tap opens (see showAppSortSheet). Width and label animate when the
+/// label changes.
 class AppSortChip extends StatelessWidget {
   const AppSortChip({super.key, required this.label, this.onTap});
 

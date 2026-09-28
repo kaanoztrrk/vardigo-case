@@ -4,11 +4,11 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/widgets/button/app_square_button.dart';
 
-/// Geri | "Görüşme Talepleri / 12 talep yanıt bekliyor".
+/// Back | "Görüşme Talepleri / 12 talep yanıt bekliyor".
 ///
-/// Spec başlığı ortalayıp sağa 44'lük boşluk koyuyor; referansta başlık
-/// geri butonunun yanında, sola yaslı (karar D3 — PNG önce gelir).
-/// Geri butonunun hedefi yok (Ekran 1'deki aynı gerekçe).
+/// The spec centers the title with a 44 px spacer on the right, but the
+/// reference has it left-aligned next to the back button, so I went with
+/// the PNG. Back doesn't go anywhere, same as on screen 1.
 class OffersHeader extends StatelessWidget {
   const OffersHeader({super.key, required this.subtitle});
 

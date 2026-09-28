@@ -5,8 +5,7 @@ import '../../theme/app_shadows.dart';
 import '../icon/app_icon.dart';
 import 'app_pressable.dart';
 
-/// specs/00-design-tokens.txt → ORTAK KONTROLLER → Kare buton
-/// (geri / yardım).
+/// Square button from the design tokens (back / help).
 class AppSquareButton extends StatelessWidget {
   const AppSquareButton({super.key, required this.icon, this.onTap});
 

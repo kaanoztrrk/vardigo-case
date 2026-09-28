@@ -3,14 +3,14 @@ import 'package:flutter/widgets.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/widgets/button/app_square_button.dart';
 
-/// Geri | "26 personel bulundu / Eşleşen Personeller" | yardım.
+/// Back | "26 personel bulundu / Eşleşen Personeller" | help.
 ///
-/// Geri ve yardım butonlarının hedefi yok: case'de bu ekranın öncesi ve
-/// bir yardım sayfası tanımlı değil.
+/// Back and help don't go anywhere; the case has no previous screen or
+/// help page.
 class CandidatesHeader extends StatelessWidget {
   const CandidatesHeader({super.key, required this.total});
 
-  /// Aktif sekmenin etiket sayısı (bkz. CandidatesState.activeTotal).
+  /// Label count for the active tab (see CandidatesState.activeTotal).
   final int total;
 
   @override

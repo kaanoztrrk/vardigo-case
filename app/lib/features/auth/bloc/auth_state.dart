@@ -1,12 +1,12 @@
 import '../data/enum/user_role.dart';
 
 class AuthState {
-  /// İstenen rol — giriş başarısız olursa "Tekrar dene" bununla yeniden
-  /// deniyor.
+  /// The role being requested. "Tekrar dene" retries with this if login
+  /// fails.
   final UserRole? requestedRole;
 
-  /// Girişi tamamlanmış rol. null iken router kullanıcıyı açılış
-  /// ekranında tutuyor (bkz. app_router.dart).
+  /// The logged-in role. While null, the router keeps the user on the
+  /// splash screen (see app_router.dart).
   final UserRole? role;
 
   final bool loading;

@@ -30,7 +30,7 @@ test('login: geçersiz ya da eksik rol 400 INVALID_ROLE', async () => {
     assert.equal(res.body.ok, false);
     assert.equal(res.body.error.code, 'INVALID_ROLE');
   }
-  // Gövdesiz istek (Content-Type yok)
+  // No body, no Content-Type
   const res = await request(app).post('/api/auth/login');
   assert.equal(res.status, 400);
 });
@@ -60,7 +60,7 @@ test('requireRole: token yok / geçersiz / yanlış rol / doğru rol', async () 
   const cases = [
     [undefined, 401, 'UNAUTHORIZED'],
     ['Bearer yanlis', 401, 'UNAUTHORIZED'],
-    ['dev-employer', 401, 'UNAUTHORIZED'], // "Bearer " öneki yok
+    ['dev-employer', 401, 'UNAUTHORIZED'], // missing "Bearer " prefix
     ['Bearer dev-worker', 401, 'FORBIDDEN_ROLE'],
   ];
   for (const [auth, status, code] of cases) {

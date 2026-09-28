@@ -1,15 +1,14 @@
-// Spec'teki "MİNİMUM TEST" senaryosu, birebir ve sırayla:
+// The "MİNİMUM TEST" scenario from the spec, step by step:
 //
-//   1. employer login → GET /candidates → 4 kişi
-//   2. Merve + Derya seç → POST /offers
-//   3. worker login → GET /offers?status=pending → en az o iki + seed
-//   4. accept biri, reject biri
-//   5. GET answered → 2 kayıt
-//   6. sayfayı yenile → aynı state
+//   1. employer login → GET /candidates → 4 candidates
+//   2. select Merve + Derya → POST /offers
+//   3. worker login → GET /offers?status=pending → those two + seed
+//   4. accept one, reject one
+//   5. GET answered → 2 offers
+//   6. reload → same state
 //
-// Diğer testlerden farkı: uç noktaları tek tek değil, bir kullanıcının
-// yapacağı sırayla ve GERÇEK bir db.json dosyası üzerinde deniyor. Token'lar
-// da sabit yazılmıyor, login cevabından alınıyor.
+// Unlike the other tests, this runs the flow in the order a user would,
+// against a real db.json file, with tokens taken from the login response.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -24,7 +23,7 @@ const seed = JSON.parse(
   fs.readFileSync(new URL('../data/seed.json', import.meta.url), 'utf8'),
 );
 
-// Sunucuyu db.json'dan açar; 6. adımda aynı dosyayla ikinci kez açılıyor.
+// Step 6 boots a second app from the same file.
 const boot = (file) => createApp({ store: createStore({ seed, file }) });
 
 async function login(app, role) {
@@ -91,8 +90,7 @@ test('spec minimum test senaryosu', async (t) => {
     assert.equal(rejected.body.data.status, 'rejected');
   });
 
-  // 5. ve 6. adım aynı kontrolü yapıyor: önce aynı sunucuda, sonra
-  // yeniden açılmış sunucuda.
+  // Steps 5 and 6 run the same check, before and after the restart.
   const expectAnswered = async () => {
     const res = await request(app)
       .get('/api/offers?status=answered')
@@ -107,9 +105,8 @@ test('spec minimum test senaryosu', async (t) => {
   await t.test('5. GET answered → 2 kayıt', expectAnswered);
 
   await t.test('6. sayfayı yenile → aynı state (sunucu yeniden açılsa bile)', async () => {
-    // Sayfa yenilemekten daha zor bir sınav: sunucu tamamen kapanıp aynı
-    // db.json'dan yeniden açılıyor. Veri bundan sağ çıkıyorsa yenilemeden
-    // de çıkar.
+    // Stricter than a page reload: the server comes back up from the same
+    // db.json. If the data survives this, it survives a reload.
     app = boot(file);
     await expectAnswered();
 

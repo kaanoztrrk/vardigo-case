@@ -12,7 +12,7 @@ const seed = JSON.parse(
   fs.readFileSync(new URL('../data/seed.json', import.meta.url), 'utf8'),
 );
 
-// Sahte web build'i: yalnızca index.html ve bir dosya.
+// Fake web build: just index.html and one other file.
 const webDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vardigo-web-'));
 fs.writeFileSync(path.join(webDir, 'index.html'), '<html>uygulama</html>');
 fs.writeFileSync(path.join(webDir, 'main.dart.js'), 'console.log(1)');

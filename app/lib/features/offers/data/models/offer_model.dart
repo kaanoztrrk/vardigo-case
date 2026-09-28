@@ -2,28 +2,28 @@ import 'package:equatable/equatable.dart';
 
 import '../enum/offer_status.dart';
 
-/// GET /api/offers listesindeki bir görüşme talebi.
+/// One offer from GET /api/offers.
 class OfferModel extends Equatable {
   final String id;
   final String title;
   final String place;
 
-  /// Ekrandaki biçim ("45.000"); ₺ öneki ekranda (karar D4).
+  /// Display format ("45.000"); the UI adds ₺.
   final String pay;
 
-  /// "Ücret" sıralaması için.
+  /// Used for the "Ücret" sort.
   final int payValue;
 
-  /// TAM adres — repository sunucunun göreli yolunu çeviriyor.
+  /// Full URL; the repository resolves the server's relative path.
   final String logoUrl;
   final String district;
 
-  /// "16 Ağu · 12:00 - 16:00" — sunucudaki gibi (karar D10).
+  /// "16 Ağu · 12:00 - 16:00", as sent by the server.
   final String when;
   final OfferStatus status;
 
-  /// "21 saat 32 dakika" — sunucu expiresAt'ten hesaplıyor (spec 03);
-  /// yalnızca bekleyen talepte dolu.
+  /// "21 saat 32 dakika", computed by the server from expiresAt. Only set
+  /// for pending offers.
   final String? remain;
   final DateTime expiresAt;
 
@@ -60,8 +60,8 @@ class OfferModel extends Equatable {
     );
   }
 
-  /// 6 saatten az kaldıysa geri sayım kırmızı (karar D6; referansta
-  /// "5 saat 32 dakika" kırmızı, "21 saat 32 dakika" siyah).
+  /// Countdown turns red under 6 hours. In the reference "5 saat 32
+  /// dakika" is red and "21 saat 32 dakika" is black.
   bool isUrgent(DateTime now) =>
       expiresAt.difference(now) < const Duration(hours: 6);
 

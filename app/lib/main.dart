@@ -8,8 +8,7 @@ import 'features/auth/data/enum/user_role.dart';
 
 void main() {
   setupDependencies();
-  // Şimdilik uygulama işveren olarak açılıyor; rol seçici gelince
-  // varsayılan rol oradan değişecek.
+  // Opens as the employer; the role switch above the phone changes it.
   getIt<AuthBloc>().add(AuthRoleSelected(UserRole.employer));
   runApp(const VardigoApp());
 }

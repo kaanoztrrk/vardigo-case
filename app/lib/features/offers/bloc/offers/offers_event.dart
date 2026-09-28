@@ -3,8 +3,8 @@ import '../../data/enum/offer_tab.dart';
 
 abstract class OffersEvent {}
 
-/// Mevcut sekmeyi (yeniden) yükle — ekran açılışı, "Tekrar dene" ve geri
-/// sayımın 60 sn'lik tazelemesi (karar B6).
+/// (Re)load the current tab. Used on open, by "Tekrar dene", and by the
+/// 60s countdown refresh.
 class OffersRequested extends OffersEvent {}
 
 class OffersTabChanged extends OffersEvent {
@@ -13,7 +13,7 @@ class OffersTabChanged extends OffersEvent {
   OffersTabChanged(this.tab);
 }
 
-/// Sıralama panelinden bir seçenek seçildi.
+/// An option was picked in the sort sheet.
 class OffersSortSelected extends OffersEvent {
   final OfferSort sort;
 
@@ -28,12 +28,12 @@ class OfferAnswerRequested extends OffersEvent {
   OfferAnswerRequested(this.offerId, {required this.accept});
 }
 
-/// "Detayları Gör": kartın altındaki detayı aç / kapat.
+/// "Detayları Gör": expand / collapse the detail under the card.
 class OfferDetailToggled extends OffersEvent {
   final String offerId;
 
   OfferDetailToggled(this.offerId);
 }
 
-/// Toast gösterildi — tekrar gösterilmesin.
+/// The toast was shown; clear it so it doesn't show again.
 class OffersToastShown extends OffersEvent {}

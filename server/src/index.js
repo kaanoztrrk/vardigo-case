@@ -15,8 +15,8 @@ const store = createStore({
   file: fileURLToPath(new URL('../data/db.json', import.meta.url)),
 });
 
-// Hazır web build'i (`npm run build:web` üretir, repoda duruyor). Yoksa
-// yalnızca API ayağa kalkıyor.
+// Prebuilt web app (from `npm run build:web`, committed to the repo).
+// If it's missing, only the API starts.
 const webDir = fileURLToPath(new URL('../public', import.meta.url));
 const hasWeb = fs.existsSync(path.join(webDir, 'index.html'));
 

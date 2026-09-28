@@ -1,22 +1,21 @@
 import 'package:equatable/equatable.dart';
 
-/// Repository katmanından Bloc katmanına taşınan hata tipi.
+/// What repositories throw to blocs instead of raw HTTP/network errors.
 ///
-/// HTTP/ağ exception'larını doğrudan Bloc'a sızdırmak yerine bu tip
-/// taşınıyor. [message] kullanıcıya gösterilebilir: sunucu mesajları zaten
-/// Türkçe ve ekrana uygun yazılıyor (bkz. server/src/http.js).
+/// [message] can go straight to the UI; the server already writes its
+/// messages in Turkish for the user (see server/src/http.js).
 abstract class Failure extends Equatable {
   final String message;
 
-  /// Sunucunun makine okunabilir hata kodu (ör. `OFFER_EXISTS`). Ağ hatası
-  /// gibi sunucuya hiç ulaşılamayan durumlarda null.
+  /// Error code from the server (e.g. `OFFER_EXISTS`). Null when the
+  /// server was never reached.
   ///
-  /// Ekranlar ayrım yapacaksa MESAJA değil buna bakmalı: sunucudaki bir
-  /// yazım düzeltmesi istemciyi sessizce bozmasın.
+  /// Branch on this, not on [message], so a wording change on the server
+  /// doesn't quietly break the client.
   final String? code;
 
-  /// Sorunlu kayıtların id'leri — ör. POST /offers 409'unda zaten talep
-  /// gönderilmiş adaylar.
+  /// Ids the error is about, e.g. candidates that already have a pending
+  /// offer in a POST /offers 409.
   final List<String> ids;
 
   const Failure(this.message, {this.code, this.ids = const []});
@@ -25,40 +24,40 @@ abstract class Failure extends Equatable {
   List<Object?> get props => [message, code, ids];
 }
 
-/// 400 — gönderilen veri kurallara uymuyor (boş seçim, geçersiz sorgu...).
+/// 400: bad input (empty selection, invalid query, ...).
 class ValidationFailure extends Failure {
   const ValidationFailure(super.message, {super.code, super.ids});
 }
 
-/// 401 — token yok/geçersiz ya da bu işlem bu role açık değil.
+/// 401: missing or invalid token, or wrong role.
 class AuthFailure extends Failure {
   const AuthFailure(super.message, {super.code, super.ids});
 }
 
-/// 404 — aday ya da talep bulunamadı.
+/// 404: candidate or offer not found.
 class NotFoundFailure extends Failure {
   const NotFoundFailure(super.message, {super.code, super.ids});
 }
 
-/// 409 — istek geçerli ama bir iş kuralına takıldı (bekleyen talep var,
-/// talep zaten yanıtlanmış, süresi dolmuş).
+/// 409: valid request that breaks a business rule (offer already pending,
+/// already answered, or expired).
 class ConflictFailure extends Failure {
   const ConflictFailure(super.message, {super.code, super.ids});
 }
 
-/// 5xx ya da sunucudan anlaşılamayan bir cevap geldi.
+/// 5xx, or a response we couldn't parse.
 class ServerFailure extends Failure {
   const ServerFailure(super.message, {super.code, super.ids});
 }
 
-/// Sunucuya hiç ulaşılamadı: kapalı, bağlantı yok ya da zaman aşımı.
+/// Never reached the server: it's down, no connection, or timeout.
 class NetworkFailure extends Failure {
   const NetworkFailure([
     super.message = 'Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.',
   ]);
 }
 
-/// Beklenmeyen / sınıflandırılamayan her şey için son çare.
+/// Catch-all for anything else.
 class UnknownFailure extends Failure {
   const UnknownFailure([super.message = 'Beklenmeyen bir hata oluştu.']);
 }

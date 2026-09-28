@@ -1,10 +1,11 @@
 import 'package:equatable/equatable.dart';
 
-/// GET /api/candidates listesindeki bir aday.
+/// One candidate from GET /api/candidates.
 ///
-/// Sayısal alanlar (rating, km...) sunucudan EKRANDA GÖRÜNDÜĞÜ GİBİ metin
-/// geliyor ("4.9", "%100 katılım", "4.9 km"): sıralama sunucuda, istemci
-/// bunlarla hesap yapmıyor. `score` / `perfect` bu yüzden modele alınmadı.
+/// Numbers like rating and km arrive as display strings ("4.9",
+/// "%100 katılım", "4.9 km"). Sorting happens on the server and the client
+/// never does math on them, which is also why `score` / `perfect` aren't
+/// in the model.
 class CandidateModel extends Equatable {
   final String id;
   final String name;
@@ -12,14 +13,14 @@ class CandidateModel extends Equatable {
   final String attend;
   final String km;
 
-  /// TAM adres — repository sunucunun göreli yolunu çeviriyor.
+  /// Full URL; the repository resolves the server's relative path.
   final String photoUrl;
   final bool online;
 
-  /// Aylık ücret beklentisi, "25.000" biçiminde (₺ öneki ekranda).
+  /// Expected monthly pay like "25.000" (the UI adds ₺).
   final String expectedPay;
 
-  /// Beklenti işverenin teklifiyle uyuşuyor mu (kartta yeşil / turuncu).
+  /// Whether it matches the employer's offer (green / orange on the card).
   final bool payMatch;
 
   const CandidateModel({

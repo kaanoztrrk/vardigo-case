@@ -5,10 +5,10 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_shadows.dart';
 import '../../theme/app_text_style.dart';
 
-/// specs/00-design-tokens.txt → TELEFON ÇERÇEVESİ.
-/// 390×844 dış kutu, 11 px bezel → 368×822 iç ekran.
-/// Status bar (54) ve home indicator (30) içeriğin üstüne çizilir;
-/// ekranlar bu alanları MediaQuery padding'inden okur.
+/// Phone frame from the design tokens.
+/// 390×844 outside with an 11 px bezel, leaving a 368×822 screen.
+/// The status bar (54) and home indicator (30) are drawn over the content;
+/// screens get that space from MediaQuery padding.
 class PhoneFrame extends StatelessWidget {
   const PhoneFrame({
     super.key,
@@ -35,7 +35,7 @@ class PhoneFrame extends StatelessWidget {
         borderRadius: BorderRadius.circular(54),
         boxShadow: AppShadows.bezel,
       ),
-      // Bezel iç çizgi: inset 0 0 0 1 rgba(255,255,255,0.12)
+      // Inner bezel line: inset 0 0 0 1 rgba(255,255,255,0.12)
       foregroundDecoration: BoxDecoration(
         borderRadius: BorderRadius.circular(54),
         border: Border.all(color: const Color(0x1FFFFFFF)),

@@ -9,17 +9,16 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../data/enum/user_role.dart';
 
-/// Demo rol anahtarı: İşveren | İş arayan.
+/// Demo role switch: İşveren | İş arayan.
 ///
-/// Telefon çerçevesinin DIŞINDA duruyor (bkz. app.dart): uygulamanın bir
-/// parçası değil, değerlendiricinin iki hesap arasında tek tıkla geçmesi
-/// için bir demo kontrolü. Case'de rol seçmek giriş yapmak demek
-/// (bkz. AuthRepository); geçiş sonrası doğru ekrana router kendisi
-/// götürüyor (bkz. app_router.dart).
+/// Sits outside the phone frame (see app.dart). It isn't part of the app,
+/// just a quick way to jump between the two accounts. Picking a role logs
+/// in as that role (see AuthRepository), and the router takes care of
+/// showing the right screen (see app_router.dart).
 class RoleSwitch extends StatelessWidget {
   const RoleSwitch({super.key, required this.bloc});
 
-  /// Çerçeve route ağacının dışında — bloc ağaçtan değil doğrudan veriliyor.
+  /// Passed in directly since this lives outside the route tree.
   final AuthBloc bloc;
 
   static const _duration = Duration(milliseconds: 260);
@@ -34,8 +33,8 @@ class RoleSwitch extends StatelessWidget {
   Widget build(BuildContext context) => BlocBuilder<AuthBloc, AuthState>(
     bloc: bloc,
     builder: (context, state) {
-      // Giriş sürerken istenen rol gösteriliyor: pill dokunur dokunmaz
-      // kaysın, sunucuyu beklemesin.
+      // Show the requested role while logging in, so the pill moves right
+      // away instead of waiting for the server.
       final active = state.requestedRole ?? state.role ?? UserRole.employer;
       return Container(
         width: _width,
@@ -72,7 +71,7 @@ class RoleSwitch extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      // Giriş sürerken ikinci bir istek atılmasın.
+                      // No second login while one is in flight.
                       onTap: state.loading || role == active
                           ? null
                           : () => bloc.add(AuthRoleSelected(role)),

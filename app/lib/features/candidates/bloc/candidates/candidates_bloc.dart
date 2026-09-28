@@ -6,14 +6,14 @@ import '../../data/repository/candidate_repository.dart';
 import 'candidates_event.dart';
 import 'candidates_state.dart';
 
-/// Eşleşen Personeller ekranı. Singleton (bkz. injection.dart).
+/// Eşleşen Personeller screen. Singleton (see injection.dart).
 class CandidatesBloc extends Bloc<CandidatesEvent, CandidatesState> {
   final CandidateRepository _repository;
   final OfferRepository _offerRepository;
 
-  /// Şimdiye kadar yüklenen adayların isimleri (id → isim). Seçim sekmeler
-  /// arası ortak olduğu için 409'da çakışan aday o an ekrandaki listede
-  /// olmayabilir; mesajda yine de ismiyle geçsin.
+  /// id → name for every candidate loaded so far. Selection is shared
+  /// across tabs, so a candidate in a 409 might not be in the current
+  /// list, and we still want to show their name.
   final Map<String, String> _names = {};
 
   CandidatesBloc(this._repository, this._offerRepository)
@@ -30,8 +30,8 @@ class CandidatesBloc extends Bloc<CandidatesEvent, CandidatesState> {
     );
   }
 
-  // Sekme ve sıralama state'e HEMEN yazılıyor (pill / chip beklemeden
-  // değişsin), liste sunucudan gelince yenileniyor.
+  // Tab and sort update the state right away so the pill and chip react
+  // immediately; the list follows when the server responds.
 
   Future<void> _onTabChanged(
     CandidatesTabChanged event,
@@ -64,7 +64,7 @@ class CandidatesBloc extends Bloc<CandidatesEvent, CandidatesState> {
     CandidatesOffersSendRequested event,
     Emitter<CandidatesState> emit,
   ) async {
-    // Buton zaten pasif; yine de çift olay iki istek atmasın.
+    // The button is already disabled, but guard against double events.
     if (state.sending || state.selectedIds.isEmpty) return;
     final ids = state.selectedIds.toList();
     emit(state.copyWith(sending: true));
@@ -80,9 +80,10 @@ class CandidatesBloc extends Bloc<CandidatesEvent, CandidatesState> {
       );
     } on Failure catch (f) {
       if (f.code == 'OFFER_EXISTS') {
-        // Sunucu atomik: hiçbiri gitmedi. Çakışanlar seçimden çıkıyor,
-        // kalanlar tek dokunuşla yeniden gönderilebilsin. Sunucunun mesajı
-        // id içeriyor (w_merve); ekranda isim gösteriliyor.
+        // The server is all-or-nothing, so nothing was sent. Drop the
+        // conflicting ones from the selection so the rest can be resent
+        // with one tap. The server message has ids (w_merve); we show
+        // names instead.
         final names = f.ids.map((id) => _names[id] ?? id).join(', ');
         emit(
           state.copyWith(
@@ -106,8 +107,8 @@ class CandidatesBloc extends Bloc<CandidatesEvent, CandidatesState> {
     try {
       final result = await _repository.fetchCandidates(tab: tab, sort: sort);
 
-      // Arka arkaya sekme/sıralama değişiminde cevaplar sırasız gelebilir:
-      // artık ekranda olmayan bir isteğin cevabı listeyi ezmesin.
+      // Quick tab/sort changes can return out of order. Ignore responses
+      // for a tab or sort that's no longer active.
       if (tab != state.tab || sort != state.sort) return;
 
       for (final c in result.candidates) {
@@ -118,8 +119,8 @@ class CandidatesBloc extends Bloc<CandidatesEvent, CandidatesState> {
           candidates: result.candidates,
           totalPerfect: result.totalPerfect,
           totalSimilar: result.totalSimilar,
-          // Referanstaki "1 kişi seçildi" — yalnızca İLK yüklemede;
-          // sonrasında seçim kullanıcının.
+          // "1 kişi seçildi" from the reference, only on the first load.
+          // After that the selection is up to the user.
           selectedIds: state.loaded
               ? null
               : result.candidates

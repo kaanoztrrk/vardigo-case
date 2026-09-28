@@ -5,9 +5,9 @@ import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../data/enum/offer_tab.dart';
 
-/// Bekleyen | Cevaplanan | Süresi Dolan (spec 02 → header → 3'lü tab).
-/// Ekran 1'in sekmelerinden farklı bir bileşen: renkler, radius ve aktif
-/// hal (beyaz pill) başka.
+/// Bekleyen | Cevaplanan | Süresi Dolan.
+/// Separate from screen 1's tabs because the colors, radius and active
+/// state (white pill) are all different.
 class OfferTabBar extends StatelessWidget {
   const OfferTabBar({super.key, required this.active, required this.onChanged});
 
@@ -17,8 +17,8 @@ class OfferTabBar extends StatelessWidget {
   static const _duration = Duration(milliseconds: 260);
   static const _gap = 4.0;
 
-  // Beyaz pill tek bir parça ve sekmeler arasında KAYIYOR (Ekran 1'deki
-  // gibi); yazılar üstünde, renkleri geçişli değişiyor.
+  // Like screen 1: one white pill slides between tabs, with the labels on
+  // top fading between colors.
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(4),

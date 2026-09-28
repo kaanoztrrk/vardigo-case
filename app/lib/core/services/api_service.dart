@@ -6,19 +6,17 @@ import 'package:http/http.dart' as http;
 import '../errors/error_mapper.dart';
 import '../errors/failures.dart';
 
-/// Sunucuyla konuşmanın tek kapısı.
-///
-/// Üç işi var, repository'ler bunların hiçbirini bilmiyor:
-///  - Oturum token'ını her isteğe `Authorization: Bearer` olarak ekler.
-///  - Sunucunun `{ ok, data }` zarfını açar, yalnızca `data`'yı döner.
-///  - Her hatayı [Failure]'a çevirir — bloc'lar `on Failure catch`
-///    konvansiyonuyla çalışabilsin, ham `http`/`FormatException` sızmasın.
+/// All HTTP calls go through here, so repositories don't have to:
+///  - add the session token as `Authorization: Bearer`,
+///  - unwrap the `{ ok, data }` envelope and return `data`,
+///  - turn every error into a [Failure], so blocs only need
+///    `on Failure catch` and never see raw http/FormatException errors.
 class ApiService {
   final http.Client _client;
   final String _baseUrl;
   final Duration _timeout;
 
-  /// Giriş yapılınca AuthRepository tarafından set edilir; çıkışta null.
+  /// Set by AuthRepository on login, null on logout.
   String? _token;
 
   ApiService({
@@ -31,8 +29,8 @@ class ApiService {
 
   set token(String? value) => _token = value;
 
-  /// Sunucunun döndüğü göreli görsel yolunu (`/assets/photos/merve.png`)
-  /// tam adrese çevirir — Image.network için.
+  /// Turns a relative image path from the API (`/assets/photos/merve.png`)
+  /// into a full URL for Image.network.
   String assetUrl(String path) => '$_baseUrl$path';
 
   Future<Object?> get(
@@ -69,8 +67,7 @@ class ApiService {
     try {
       response = await request().timeout(_timeout);
     } catch (e, st) {
-      // Sunucu kapalı, bağlantı yok ya da zaman aşımı: sunucudan hiçbir
-      // cevap gelmedi.
+      // No response at all: server down, no connection, or timeout.
       throw ErrorMapper.fromException(
         e,
         st,
@@ -81,8 +78,8 @@ class ApiService {
 
     final Object? decoded;
     try {
-      // body değil bodyBytes: Türkçe karakterler (ı, ş, ğ) charset
-      // tahminine bırakılmadan UTF-8 çözülsün.
+      // Decode bodyBytes as UTF-8 ourselves instead of relying on charset
+      // detection, otherwise Turkish characters (ı, ş, ğ) can break.
       decoded = jsonDecode(utf8.decode(response.bodyBytes));
     } catch (e, st) {
       throw ErrorMapper.fromException(

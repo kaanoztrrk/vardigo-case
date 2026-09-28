@@ -17,8 +17,8 @@ const _base = 'http://api.test';
 
 final _now = DateTime.utc(2026, 9, 27, 12);
 
-/// Sunucunun sırasıyla (en yeni üstte) bekleyen üç talep. Barista en
-/// yeni, süresi en yakın dolan Komi, ücreti en yüksek Garson.
+/// Three pending offers in server order (newest first). Barista is the
+/// newest, Komi expires soonest, Garson pays the most.
 Map<String, Object?> _offer(String id, int pay, Duration left) => {
   'id': id,
   'title': id,
@@ -39,9 +39,9 @@ final _pending = [
   _offer('o_komi', 32000, const Duration(hours: 5)),
 ];
 
-/// Sahte sunucu. [answerErrors] talep id'si → accept/reject'in döneceği
-/// hata (status, code, message); yoksa başarı. [detailFails] true ise
-/// GET /offers/:id 500 döner. Gelen istekler [sent]'e yazılır.
+/// Fake server. [answerErrors] maps an offer id to the error accept/reject
+/// should return (status, code, message); otherwise it succeeds. With
+/// [detailFails], GET /offers/:id returns 500. Requests go into [sent].
 class _Server {
   final sent = <String>[];
   final answerErrors = <String, (int, String, String)>{};
@@ -83,7 +83,7 @@ class _Server {
         'error': {'code': code, 'message': message},
       });
 
-  // Response(String) gövdeyi latin1 kodluyor, "Kadıköy" sığmıyor.
+  // Response(String) encodes as latin1, which can't hold "Kadıköy".
   static http.Response _json(int status, Object body) => http.Response.bytes(
     utf8.encode(jsonEncode(body)),
     status,
@@ -104,7 +104,8 @@ void main() {
 
   tearDown(() => bloc.close());
 
-  /// Olayı atar ve yükleme bitene kadar bekler (bkz. candidates testi).
+  /// Adds the event and waits for loading to finish (see the candidates
+  /// test).
   Future<OffersState> load(OffersEvent event) {
     final done = bloc.stream
         .skipWhile((s) => !s.loading)
@@ -113,7 +114,7 @@ void main() {
     return done;
   }
 
-  /// Olayı atar ve kuyruktaki işler bitene kadar bekler.
+  /// Adds the event and waits for queued work to finish.
   Future<OffersState> act(OffersEvent event) async {
     bloc.add(event);
     await Future<void>.delayed(const Duration(milliseconds: 20));
@@ -142,7 +143,7 @@ void main() {
     expect(orders[OfferSort.time], ['o_komi', 'o_garson', 'o_barista']);
     expect(orders[OfferSort.pay], ['o_garson', 'o_barista', 'o_komi']);
     expect(orders[OfferSort.recommended], ['o_barista', 'o_garson', 'o_komi']);
-    // Yalnızca ilk yükleme: sıralama sunucuya gitmiyor.
+    // Only the initial load; sorting doesn't hit the server.
     expect(server.sent, hasLength(1));
   });
 
@@ -162,7 +163,7 @@ void main() {
 
       bloc.add(OfferAnswerRequested('o_garson', accept: true));
       await Future<void>.delayed(Duration.zero);
-      // İstek henüz bitmeden kart listede yok.
+      // The card is gone before the request finishes.
       expect(ids(bloc.state.offers), ['o_barista', 'o_komi']);
 
       await Future<void>.delayed(const Duration(milliseconds: 20));

@@ -11,7 +11,7 @@ const seed = JSON.parse(
 );
 const NOW = new Date('2026-09-26T10:00:00.000Z');
 
-// Her test kendi deposuyla başlar: testler birbirinin tekliflerini görmesin.
+// Fresh store per test so offers don't leak between tests.
 function setup() {
   const store = createStore({ seed, now: () => NOW });
   const app = createApp({ store, now: () => NOW });
@@ -44,7 +44,7 @@ test('Merve + Derya → 201, iki pending teklif yazılır', async () => {
   assert.equal(saved[0].title, 'Garson');
   assert.equal(saved[0].place, 'Zarif Cheff Restaurant');
   assert.equal(saved[0].createdAt, '2026-09-26T10:00:00.000Z');
-  assert.equal(saved[0].expiresAt, '2026-09-27T07:32:00.000Z'); // +21s 32dk
+  assert.equal(saved[0].expiresAt, '2026-09-27T07:32:00.000Z'); // +21h 32m
 });
 
 test('boş, eksik ya da hatalı workerIds → 400', async () => {

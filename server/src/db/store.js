@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-// Seed'deki göreli süre: "USE_NOW_PLUS_21H32M" → şimdi + 21 saat 32 dakika.
+// Relative time in the seed: "USE_NOW_PLUS_21H32M" means now + 21h 32m.
 const NOW_PLUS = /^USE_NOW_PLUS_(\d+)H(\d+)M$/;
 
-// Seed'i çalışma verisine çevirir. Seed'in KENDİSİNE dokunmaz (kopya
-// üzerinde çalışır): reset her seferinde aynı başlangıcı üretebilmeli.
+// Works on a copy so the seed itself never changes and reset always
+// starts from the same state.
 export function materializeSeed(seed, now = new Date()) {
   const data = structuredClone(seed);
   for (const offer of data.offers) {
@@ -17,18 +17,16 @@ export function materializeSeed(seed, now = new Date()) {
   return data;
 }
 
-// JSON dosyası üzerinde basit veri deposu.
+// Small JSON file store. If the file exists we load it, so writes survive
+// a server restart. If not, it's built from the seed, which means a fresh
+// clone always starts with offers at "21 saat 32 dakika".
 //
-// Dosya varsa ondan okunur: accept/reject gibi yazmalar sunucu yeniden
-// başlasa da KALICI. Yoksa seed'den üretilir. Süreler bu anda
-// hesaplandığı için taze klonda talepler hep "21 saat 32 dakika" ile başlar.
-//
-// `file` verilmezse yalnızca bellekte çalışır (testler için).
+// Without `file` it stays in memory (used by the tests).
 export function createStore({ seed, file = null, now = () => new Date() }) {
   let data;
 
-  // Önce geçici dosyaya yazıp sonra yerine taşıyor: yazma yarıda kesilirse
-  // db.json yarım kalmaz, eski hâli durur.
+  // Write to a temp file and rename, so a crash mid-write doesn't leave a
+  // half-written db.json.
   function persist() {
     if (!file) return;
     fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -49,13 +47,12 @@ export function createStore({ seed, file = null, now = () => new Date() }) {
   }
 
   return {
-    // Kopya döner: çağıran taraf okuduğu veriyi değiştirse bile depo
-    // etkilenmez. Tek yazma yolu write().
+    // Returns a copy; callers can't change the store by accident.
+    // write() is the only way in.
     read: () => structuredClone(data),
 
-    // Mutasyon bir TASLAK üzerinde çalışır ve ancak hatasız biterse
-    // kaydedilir. Hata fırlatırsa hiçbir değişiklik yazılmaz. POST
-    // /offers'taki "biri çakışırsa hiçbiri yazılmaz" kuralı buna dayanıyor.
+    // mutate runs on a draft that's only saved if it doesn't throw.
+    // POST /offers relies on this for its all-or-nothing behavior.
     write(mutate) {
       const draft = structuredClone(data);
       const result = mutate(draft);

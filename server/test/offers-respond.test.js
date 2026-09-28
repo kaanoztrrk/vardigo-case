@@ -12,8 +12,8 @@ const seed = JSON.parse(
 const START = new Date('2026-09-26T10:00:00.000Z');
 const HOUR = 3_600_000;
 
-// Her test kendi deposu ve kendi saatiyle başlar; saat test içinden ileri
-// sarılabiliyor (clock.advance).
+// Fresh store and clock per test. Tests move time forward with
+// clock.advance.
 function setup() {
   const clock = {
     at: START,
@@ -59,7 +59,7 @@ test('GET /offers?status=pending: seed teklifleri, biçim ve kalan süre', async
 
 test('kalan süre saat ilerledikçe azalır', async () => {
   const { worker, clock } = setup();
-  clock.advance(HOUR + 90_000); // 1 saat 1.5 dakika
+  clock.advance(HOUR + 90_000); // 1h 1.5m
 
   const res = await worker.get('/offers?status=pending');
 
@@ -103,14 +103,14 @@ test('ikinci kez yanıt → 409 OFFER_STATE', async () => {
 
 test('süresi dolan teklif: Süresi Dolan sekmesinde, yanıt → 409 OFFER_EXPIRED', async () => {
   const { worker, store, clock } = setup();
-  clock.advance(19 * HOUR); // Komi (18 saat) doldu, diğerleri (21s 32dk) değil
+  clock.advance(19 * HOUR); // Komi (18h) has expired, the others (21h 32m) haven't
 
   const res = await worker.post('/offers/o_komi/accept');
 
   assert.equal(res.status, 409);
   assert.equal(res.body.error.code, 'OFFER_EXPIRED');
   assert.equal(res.body.error.message, 'Teklifin süresi doldu.');
-  // Hata dönse de "expired" güncellemesi kalıcı yazıldı.
+  // The request failed, but the expired status was still saved.
   assert.equal(store.read().offers.find((o) => o.id === 'o_komi').status, 'expired');
   assert.deepEqual(titles(await worker.get('/offers?status=expired')), ['Komi']);
   assert.deepEqual(titles(await worker.get('/offers?status=pending')), ['Garson', 'Barista']);

@@ -8,8 +8,8 @@ import 'package:vardigo_app/core/services/api_service.dart';
 
 const _base = 'http://api.test';
 
-/// Sunucu açmadan: MockClient her isteği yakalayıp verilen cevabı döner.
-/// Gönderilen isteği de [sent]'e yazar, header/gövde kontrol edilebilsin.
+/// No real server: MockClient returns the given response and records the
+/// request in [sent] so headers and body can be checked.
 ApiService _service(
   int status,
   Object? body, {

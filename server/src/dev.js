@@ -3,21 +3,19 @@ import { Router } from 'express';
 import { ApiError, ok } from './http.js';
 import { toResponse } from './offers.js';
 
-// Demo ve değerlendirme için yardımcı uç noktalar. Token istemiyorlar:
-// README'deki adımlar tek istekle çalışsın. Gerçek bir üründe bunlar
-// yalnızca geliştirme ortamında açık olurdu.
+// Helper endpoints for the demo. No token needed so the README steps work
+// with a single request. In a real product these would be dev-only.
 export function devRouter(store, now) {
   const router = Router();
 
-  // Veriyi seed'deki başlangıca döndürür; teklif süreleri yeniden
-  // "şimdi + 21 saat 32 dakika" olur.
+  // Back to the seed state; offer timers restart at now + 21h 32m.
   router.post('/dev/reset', (req, res) => {
     store.reset();
     return ok(res, { reset: true });
   });
 
-  // Bir teklifin süresini hemen doldurur: "Süresi Dolan" sekmesini ve
-  // "Teklifin süresi doldu" hatasını 21 saat beklemeden göstermek için.
+  // Expires an offer right away, so you can see the "Süresi Dolan" tab and
+  // the expired error without waiting 21 hours.
   router.post('/dev/expire/:id', (req, res) => {
     const at = now();
     const offer = store.write((db) => {

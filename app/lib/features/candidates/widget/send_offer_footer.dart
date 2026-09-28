@@ -6,7 +6,7 @@ import '../../../core/widgets/button/app_pressable.dart';
 import '../../../core/widgets/icon/app_icon.dart';
 import '../../../core/widgets/text/app_animated_count.dart';
 
-/// Sabit alt bar: "Görüşme Talebi Gönder (N)" (spec 01 → footer).
+/// Fixed bottom bar with "Görüşme Talebi Gönder (N)".
 class SendOfferFooter extends StatelessWidget {
   const SendOfferFooter({
     super.key,
@@ -17,13 +17,13 @@ class SendOfferFooter extends StatelessWidget {
 
   final int count;
 
-  /// İstek sürerken buton pasif: çift dokunuş iki istek atmasın.
+  /// Disabled while sending so a double tap doesn't send twice.
   final bool sending;
   final VoidCallback onSend;
 
   @override
   Widget build(BuildContext context) {
-    // 0 seçiliyken pasif: backend'e boş dizi gitmesin (spec 01).
+    // Disabled with nothing selected, so we never send an empty list.
     final enabled = count > 0 && !sending;
     return DecoratedBox(
       decoration: const BoxDecoration(
@@ -35,7 +35,7 @@ class SendOfferFooter extends StatelessWidget {
           24,
           20,
           24,
-          // Home indicator alanı + referanstaki boşluk.
+          // Home indicator space plus the gap in the reference.
           MediaQuery.paddingOf(context).bottom + 16,
         ),
         child: AppPressable(

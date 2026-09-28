@@ -1,9 +1,9 @@
 import 'offer_model.dart';
 
-/// GET /api/offers cevabının tamamı.
+/// Full GET /api/offers response.
 class OfferListModel {
-  /// Header'daki "12 talep yanıt bekliyor". Seed'de sabit etiket;
-  /// listedeki gerçek adet daha az (bkz. server/src/offers.js).
+  /// "12 talep yanıt bekliyor" in the header. A fixed label from the seed;
+  /// the real list is shorter (see server/src/offers.js).
   final int pendingCount;
   final List<OfferModel> offers;
 

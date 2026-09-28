@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-/// specs/00-design-tokens.txt → RENK
+/// Colors from specs/00-design-tokens.txt.
 abstract final class AppColors {
   static const primary = Color(0xFF335CFF);
   static const primarySoft = Color(0xFF3485FF);
@@ -32,7 +32,7 @@ abstract final class AppColors {
   static const errorSoft = Color(0x1AFB3748);
   static const warning = Color(0xFFFA7319);
 
-  // Telefon çerçevesi
+  // Phone frame
   static const bezel = Color(0xFF0B0B0D);
   static const island = Color(0xFF000000);
   static const islandLens = Color(0xFF1C1C1E);

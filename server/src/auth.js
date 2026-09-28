@@ -4,13 +4,13 @@ import { ApiError, ok } from './http.js';
 
 const ROLES = ['employer', 'worker'];
 
-// Case için sabit iki hesap (seed users): SMS / şifre yok, rol seçmek
-// giriş yapmak demek. Token da seed'de sabit ("dev-employer" / "dev-worker").
+// Two fixed accounts from the seed. No SMS or password: picking a role is
+// the login. Tokens are fixed too ("dev-employer" / "dev-worker").
 export function authRouter(store) {
   const router = Router();
 
   router.post('/auth/login', (req, res) => {
-    // Content-Type JSON değilse Express 5'te req.body undefined geliyor.
+    // Express 5 leaves req.body undefined when the request isn't JSON.
     const role = req.body?.role;
     if (!ROLES.includes(role)) {
       throw new ApiError(400, 'INVALID_ROLE', 'role "employer" ya da "worker" olmalı.');
@@ -22,10 +22,10 @@ export function authRouter(store) {
   return router;
 }
 
-// Bearer token'ı doğrular ve rolü kontrol eder; geçerse req.user'ı doldurur.
+// Checks the Bearer token and role, then sets req.user.
 //
-// Yanlış rol de 401 + FORBIDDEN_ROLE: spec böyle istiyor ("yanlış rol
-// 401"). HTTP semantiğinde doğrusu 403 — README'de not olarak geçiyor.
+// A wrong role returns 401 FORBIDDEN_ROLE because the spec asks for 401.
+// 403 would be the correct status; the README mentions this.
 export function requireRole(store, role) {
   return (req, res, next) => {
     const [scheme, token] = (req.get('Authorization') ?? '').split(' ');

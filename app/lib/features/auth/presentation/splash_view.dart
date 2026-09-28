@@ -7,8 +7,8 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
-/// Giriş sürerken ya da başarısız olduysa görünen ekran. Giriş bitince
-/// router kullanıcıyı buradan KENDİSİ alıyor (bkz. app_router.dart).
+/// Shown while logging in or after a failed login. Once login succeeds the
+/// router moves on by itself (see app_router.dart).
 class SplashView extends StatelessWidget {
   const SplashView({super.key});
 
@@ -22,7 +22,7 @@ class SplashView extends StatelessWidget {
           if (state.error == null || role == null) {
             return const CircularProgressIndicator();
           }
-          // En olası sebep: sunucu kapalı (npm run dev).
+          // Most likely the server isn't running (npm run dev).
           return Padding(
             padding: const EdgeInsets.all(24),
             child: Column(

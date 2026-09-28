@@ -16,10 +16,9 @@ import '../widget/offer_list.dart';
 import '../widget/offer_tab_bar.dart';
 import '../widget/offers_header.dart';
 
-/// Ekran 2 — Görüşme Talepleri (iş arayan).
+/// Screen 2: Görüşme Talepleri (worker).
 ///
-/// Header ve sekmeler sabit; sort chip ve kartlar kayıyor. Footer yok
-/// (spec 02).
+/// Header and tabs stay fixed; the sort chip and cards scroll. No footer.
 class OffersView extends StatefulWidget {
   const OffersView({super.key});
 
@@ -28,9 +27,9 @@ class OffersView extends StatefulWidget {
 }
 
 class _OffersViewState extends State<OffersView> {
-  /// Geri sayım metnini sunucu üretiyor (spec 03); ekran açıkken dakikada
-  /// bir liste tazeleniyor ki "21 saat 32 dakika" ilerlesin (karar B6).
-  /// Zamanlayıcı ekranda: ekran kapanınca tazeleme de durmalı.
+  /// The server builds the countdown text, so the list is refetched every
+  /// minute while the screen is open to keep it ticking. The timer lives
+  /// in the view so it stops when the screen goes away.
   static const _refreshEvery = Duration(seconds: 60);
 
   Timer? _timer;
@@ -87,9 +86,9 @@ class _OffersViewState extends State<OffersView> {
               ),
             ),
             Expanded(
-              // Yükleniyor ↔ liste ↔ (sekme / sıralama değişince) yeni liste
-              // arasında yumuşak geçiş. Aynı sekmedeki kart ekleme /
-              // çıkarma ise OfferList'in kendi animasyonu.
+              // Cross-fade between loading and lists on tab/sort changes.
+              // Cards added or removed within a tab are animated by
+              // OfferList itself.
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
                 switchInCurve: Curves.easeOutCubic,
@@ -181,7 +180,7 @@ class _List extends StatelessWidget {
   }
 }
 
-/// Boş state (spec 02: py 40, center, 14/400 #5C5C5C) ve hata.
+/// Empty and error state (spec: py 40, centered, 14/400 #5C5C5C).
 class _Message extends StatelessWidget {
   const _Message({required this.text, this.onRetry});
 

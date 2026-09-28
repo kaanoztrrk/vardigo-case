@@ -1,9 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// assets/icons altındaki SVG'ler. Tek renkli ikonlar [color] ile boyanır
-/// (ASSETS.txt: "tek renk maske"); çok renkli olanlar (online, date, levels,
-/// alarm) renksiz, kendi renkleriyle çizilir.
+/// SVGs from assets/icons. Single-color icons are tinted with [color];
+/// multi-color ones (online, date, levels, alarm) keep their own colors.
 class AppIcon extends StatelessWidget {
   const AppIcon(this.name, {super.key, required this.size, this.color});
 

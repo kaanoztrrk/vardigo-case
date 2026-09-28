@@ -1,6 +1,5 @@
-/// GET /api/offers/:id'nin listeye EK olarak verdiği alanlar
-/// ("Detayları Gör" — karar B11). Konum/ücret/saat zaten listedeki
-/// modelde var.
+/// Extra fields GET /api/offers/:id adds on top of the list item, for
+/// "Detayları Gör". Location, pay and time are already in the list model.
 class OfferDetailModel {
   final String city;
   final String note;

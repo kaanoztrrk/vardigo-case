@@ -17,7 +17,7 @@ void main() {
 
   setUp(() {
     logins = [];
-    // Sahte sunucu: her girişi kaydeder, 50 ms sonra token döner.
+    // Fake server: records each login and returns a token after 50 ms.
     final client = MockClient((request) async {
       final role = jsonDecode(request.body)['role'] as String;
       logins.add(role);
@@ -51,7 +51,7 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
-    // Giriş bitti; anahtar yeniden çizilsin (yoksa hâlâ "sürüyor" sanır).
+    // Login done; pump so the switch no longer thinks it's in progress.
     await tester.pump();
 
     await tester.tap(find.text('İş arayan'));
@@ -71,14 +71,14 @@ void main() {
     await pump(tester);
     await tester.pump();
 
-    // Giriş sürüyor: İş arayan'a dokunmak yok sayılır.
+    // Login in progress: tapping İş arayan is ignored.
     await tester.tap(find.text('İş arayan'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
     await tester.pumpAndSettle();
 
-    // Giriş bitti; aktif role (İşveren) dokunmak da yok sayılır.
+    // Login done: tapping the active role (İşveren) is ignored too.
     await tester.tap(find.text('İşveren'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 100)),

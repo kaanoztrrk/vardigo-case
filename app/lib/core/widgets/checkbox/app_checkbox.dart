@@ -3,10 +3,8 @@ import 'package:flutter/widgets.dart';
 import '../../theme/app_colors.dart';
 import '../icon/app_icon.dart';
 
-/// specs/00-design-tokens.txt → ORTAK KONTROLLER → Checkbox.
-/// Yalnızca görünüm: dokunmayı üstündeki kart yakalıyor (bütün kart
-/// tıklanabilir). Dolma/boşalma animasyonlu: renk geçiyor, tik büyüyerek
-/// beliriyor.
+/// Checkbox from the design tokens. Visual only: the whole card is the tap
+/// target. Checking animates the color and scales the tick in.
 class AppCheckbox extends StatelessWidget {
   const AppCheckbox({super.key, required this.checked});
 
@@ -27,7 +25,7 @@ class AppCheckbox extends StatelessWidget {
         color: checked ? AppColors.primary : AppColors.slate300,
       ),
     ),
-    // Spec "tik çizilmese de olur" diyor; referansta tik var.
+    // The spec says the tick is optional, but the reference has one.
     child: AnimatedScale(
       scale: checked ? 1 : 0.4,
       duration: _duration,

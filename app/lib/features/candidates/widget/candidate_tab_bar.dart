@@ -7,9 +7,9 @@ import '../data/enum/candidate_tab.dart';
 
 /// "%100 Eşleşme (26)" | "Benzer Personeller (16)" segmented tab.
 ///
-/// Spec "track p 4, radius 999" diyor; referans PNG'de track'in iç
-/// boşluğu yok ve köşeler ~12 px. Öncelik sırası PNG > spec, o yüzden
-/// referans uygulandı.
+/// The spec says "track p 4, radius 999", but the reference PNG has no
+/// track padding and ~12 px corners. The PNG takes priority, so I followed
+/// that.
 class CandidateTabBar extends StatelessWidget {
   const CandidateTabBar({
     super.key,
@@ -26,8 +26,8 @@ class CandidateTabBar extends StatelessWidget {
 
   static const _duration = Duration(milliseconds: 260);
 
-  // Aktif pill tek bir parça ve iki sekme arasında KAYIYOR; yazılar
-  // üstünde, renkleri geçişli değişiyor.
+  // One active pill that slides between the tabs, with the labels on top
+  // fading between colors.
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
